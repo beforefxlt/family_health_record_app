@@ -125,7 +125,8 @@ def build_ut_command(tags=None, spec=None, exclude=None, backend_only=False, mob
     commands = []
     
     if backend_only or not mobile_only:
-        backend_cmd = "pytest --maxfail=5 --disable-warnings"
+        # 后端 UT + 契约测试
+        backend_cmd = "pytest --maxfail=5 --disable-warnings tests/unit/ tests/contract/"
         if tags and "ut" in tags:
             backend_cmd = "pytest --maxfail=5 --disable-warnings -m ut"
         if spec:
@@ -137,7 +138,8 @@ def build_ut_command(tags=None, spec=None, exclude=None, backend_only=False, mob
         commands.append((backend_cmd, backend_dir))
     
     if mobile_only or not backend_only:
-        mobile_cmd = "npm test"
+        # 移动端 UT + 契约测试
+        mobile_cmd = "npm test -- --testPathPattern='(contract|constants|models|business-logic).test'"
         if tags and "ut" in tags:
             mobile_cmd = "npm test"
         if spec:
