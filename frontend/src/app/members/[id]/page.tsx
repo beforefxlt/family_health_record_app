@@ -112,6 +112,7 @@ export default function MemberDashboard() {
           <div>
             <h1 className="text-xl font-bold font-sans tracking-tight text-slate-800" data-testid="member-name">{member?.name}</h1>
             <p className="text-xs text-slate-500">{member?.date_of_birth} · {member?.gender === 'male' ? '男' : member?.gender === 'female' ? '女' : member?.gender}</p>
+            <p className="text-xs text-slate-500">年龄段: {ageGroup}</p>
           </div>
         </div>
         <button 
