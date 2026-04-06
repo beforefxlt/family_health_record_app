@@ -10,6 +10,15 @@ repos:
         types: [typescript, javascript]
         stages: [pre-commit]
         always_run: true
+      - id: backend-unit-tests
+        name: Backend Unit Tests
+        description: 运行后端单元测试，确保无回归
+        entry: bash -c 'cd backend && python -m pytest tests/unit/ -v --tb=short'
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]
+        always_run: true
       - id: no-test-code-in-production
         name: Check no test code in production
         description: 检查生产代码中是否包含测试专用逻辑

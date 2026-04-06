@@ -88,3 +88,37 @@ Playwright 的 `auto: true` fixture 需要在测试中引用才会触发。`clea
 **执行代理**: opencode
 **交付版本**: v2.7.0
 **时间**: 2026-04-05
+
+---
+
+# v2.5.0 记录列表与API超时优化 (2026-04-06)
+
+## 1. 工作背景
+
+代码审计发现两个功能缺失：无全局记录列表页面、前端API无超时处理。
+
+## 2. 核心工作
+
+### 2.1 记录列表 API
+- 新增 `GET /api/v1/records` 接口 — 分页、成员筛选
+- 新增 `routers/records.py` 路由文件
+- 更新 `API_CONTRACT.md` v2.5.0
+
+### 2.2 API 超时处理
+- 前端 `safeFetch`: 添加 30s 超时 + AbortController
+- 移动端 `apiRequest`: 启用 TIMEOUT 配置
+
+### 2.3 眼轴参考值优化
+- 新增 `_get_axial_reference_by_age()` 函数
+- 根据年龄动态计算眼轴参考值（21.0~23.5mm）
+- 更新 `members.py`、`documents.py`、`review.py`
+
+## 3. 验证结论
+- 后端 UT: 28 passed
+- E2E: 15 passed (5 skipped - 涉及外部OCR依赖)
+- Docker 镜像: v2.5.0 已构建并部署
+
+---
+**执行代理**: opencode
+**交付版本**: v2.5.0
+**时间**: 2026-04-06
