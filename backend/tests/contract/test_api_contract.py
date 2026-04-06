@@ -46,7 +46,8 @@ async def test_api_contract_and_status_flow(test_client, monkeypatch):
     )
     assert member_resp.status_code == 201
     member_data = member_resp.json()
-    assert set(member_data.keys()) == {"id", "name", "gender", "date_of_birth", "member_type"}
+    # age_group is introduced in Stage 3
+    assert set(member_data.keys()) == {"id", "name", "gender", "date_of_birth", "member_type", "age_group"}
 
     list_resp = await test_client.get("/api/v1/members")
     assert list_resp.status_code == 200
