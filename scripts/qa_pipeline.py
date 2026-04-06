@@ -61,12 +61,13 @@ def wait_for_service(url, timeout=60, service_name="服务"):
         try:
             r = requests.get(url, timeout=2)
             if r.status_code == 200:
-                print(f"✅ {service_name} 已就绪")
+                # Avoid non-ASCII characters for Windows consoles
+                print(f"[OK] {service_name} 已就绪")
                 return True
         except:
             pass
         time.sleep(1)
-    print(f"❌ {service_name} 启动超时")
+    print(f"[ERROR] {service_name} 启动超时")
     return False
 
 
@@ -108,7 +109,8 @@ def build_e2e_command(tags=None, spec=None, exclude=None):
             cmd = f'npx playwright test --reporter=list --grep "{grep_str}"'
     
     if spec:
-        cmd = f"npx playwright test --reporter=list {spec}"
+        spec_expr = spec.replace('*', '')
+        cmd = f"npx playwright test --reporter=list \"{spec_expr}\""
     
     if exclude:
         exclude_list = exclude.split(",")
@@ -129,8 +131,10 @@ def build_ut_command(tags=None, spec=None, exclude=None, backend_only=False, mob
         backend_cmd = "pytest --maxfail=5 --disable-warnings tests/unit/ tests/contract/"
         if tags and "ut" in tags:
             backend_cmd = "pytest --maxfail=5 --disable-warnings -m ut"
-        if spec:
-            backend_cmd = f"pytest --maxfail=5 --disable-warnings -k '{spec}'"
+    if spec:
+        # Use substring match: convert wildcard '*' to simple substring for Windows shells
+        spec_expr = spec.replace('*', '')
+        backend_cmd = f"pytest --maxfail=5 --disable-warnings -k \"{spec_expr}\""
         if exclude:
             exclude_list = exclude.split(",")
             exclude_str = " ".join([f"--ignore=tests/{e}" for e in exclude_list])
@@ -142,8 +146,10 @@ def build_ut_command(tags=None, spec=None, exclude=None, backend_only=False, mob
         mobile_cmd = "npm test -- --testPathPattern='(contract|constants|models|business-logic).test'"
         if tags and "ut" in tags:
             mobile_cmd = "npm test"
-        if spec:
-            mobile_cmd = f"npm test -- --testPathPattern='{spec}'"
+    if spec:
+        spec_expr = spec.replace('*', '')
+        # Use double quotes for Windows shell compatibility
+        mobile_cmd = f"npm test -- --testPathPattern=\"{spec_expr}\""
         commands.append((mobile_cmd, mobile_dir))
     
     return commands
@@ -178,7 +184,7 @@ def run_e2e(tags=None, spec=None, exclude=None, frontend_dir=None):
     return run_command(cmd, cwd=frontend_dir)
 
 
-def docker_mode(tags=None, spec=None, exclude=None, run_ut=True):
+def docker_mode(tags=None, spec=None, exclude=None, run_ut_flag=True):
     """
     Docker 模式：
     1. Docker 启动 db/minio/backend
@@ -232,7 +238,7 @@ def docker_mode(tags=None, spec=None, exclude=None, run_ut=True):
         return False
     
     # 6. 运行 UT（如果指定）
-    if run_ut:
+    if run_ut_flag:
         print("\n[6/7] 运行单元测试...")
         run_ut(tags=tags, spec=spec, exclude=exclude)
     else:

@@ -7,133 +7,168 @@
 
 ## 当前状态
 
-**整体进度**: 🔶 进行中 - 移动端上传流程 Bug 修复，APK 构建遇到网络问题
+**整体进度**: 🔶 进行中 - 代码审计与功能开发完成，APK 闪退问题待调查
 
 | 模块 | 状态 | 说明 |
 |------|------|------|
-| 后端 API | ✅ 正常 | FastAPI 运行在端口 8000 |
-| 后端测试 | ✅ 正常 | pytest 通过 |
+| 后端 API | ✅ 正常 | FastAPI 运行中，v2.5.0 |
+| 后端测试 | ✅ 正常 | 28 passed |
 | 前端页面 | ✅ 正常 | Next.js 运行在端口 3001 |
-| 移动端代码修复 | ✅ 完成 | upload.tsx 上传后自动触发 OCR |
-| 移动端 APK 构建 | 🔶 阻塞 | Gradle 下载/网络问题 |
+| 移动端 APK | ⛔ 崩溃待修复 | Release APK 已安装在模拟器，启动后崩溃，原因：Expo 模块缺失 |
+| Docker 部署 | ✅ 完成 | v2.5.0 镜像已部署 |
 
 ---
 
-## 今日完成的工作
+## 已完成的工作
 
-### 1. 移动端上传流程 Bug 修复
+### 1. 代码审计与 Bug 修复
 
-**问题描述**:
-- 手机上传图片点击确认后，系统提示"上传成功，正在处理检查单"
-- 点击"查看审核"后弹出错误"加载失败"
+| Bug | 描述 | 状态 |
+|-----|------|------|
+| Bug 1 | 数据加载容错 (Promise.all 白屏) | ✅ 已修复 |
+| Bug 2 | 移动端按钮重叠 | ✅ 已修复 |
+| Bug 3 | 移动端图片预览逻辑错误 | ✅ 已修复 |
+| Bug 4 | 时间范围筛选不生效 | ✅ 已修复 |
+| Bug 5 | 审核通过事务回滚 | ✅ 验证通过（非 bug） |
+| Bug 6 | 眼轴参考值硬编码 23.0mm | ✅ 已修复 |
 
-**根因分析**:
-- 上传文档后文档状态是 `uploaded`，但没有自动触发 OCR
-- 跳转到 `/review/${document_id}` 是错误的（此时 review_task 尚未创建）
-- 正确的流程：上传 → 自动触发 OCR → OCR 完成后根据状态跳转
+### 2. 新功能开发
 
-**修复内容** (`mobile_app/src/app/upload.tsx`):
-- 上传成功后自动调用 `/api/v1/documents/${document_id}/submit-ocr` 触发 OCR
-- 根据 OCR 返回的 status 决定跳转：
-  - `approved`/`persisted` → 识别成功，提示"数据已自动入库"
-  - `rule_conflict`/`ocr_failed` → 需要审核，跳转审核页
-  - 其他状态 → 提示查看审核或返回
-- 处理 `duplicate` 状态（重复上传）
+#### v2.5.0 变更
 
-### 2. 代码修改
+1. **记录列表 API** (`backend/app/routers/records.py`)
+   - 新增 `GET /api/v1/records` 端点
+   - 支持分页、筛选、排序
 
-```typescript
-// upload.tsx - 核心修改
-if (data.document_id) {
-  if (data.status === 'duplicate') {
-    Alert.alert('已存在', data.message || '该检查单已上传过', [
-      { text: '确定', onPress: () => router.back() }
-    ]);
-    return;
-  }
+2. **API 超时配置**
+   - 后端: 30s 超时 + AbortController
+   - 前端: 30s 超时配置
+   - 移动端: 启用 TIMEOUT 配置
 
-  // 自动触发 OCR
-  const ocrResponse = await fetch(
-    `${getApiBaseUrl(host)}/api/v1/documents/${data.document_id}/submit-ocr`,
-    { method: 'POST' }
-  );
+3. **眼轴年龄参考值**
+   - 按年龄动态计算眼轴参考值
+   - 新增 UT: `test_axial_reference_by_age.py`
 
-  const ocrResult = await ocrResponse.json();
+### 3. 测试结果
 
-  if (ocrResult.status === 'approved' || ocrResult.status === 'persisted') {
-    Alert.alert('识别成功', '数据已自动入库', [
-      { text: '确定', onPress: () => router.replace(`/member/${memberId || ''}`) }
-    ]);
-  } else if (ocrResult.status === 'rule_conflict' || ocrResult.status === 'ocr_failed') {
-    Alert.alert('需要审核', '请核对检查单数据', [
-      { text: '去审核', onPress: () => router.replace(`/review/${data.document_id}`) }
-    ]);
-  }
-}
-```
+| 测试类型 | 结果 |
+|----------|------|
+| E2E 测试 | 15 passed, 5 skipped |
+| 后端 UT | 28 passed |
+
+**E2E 跳过原因**:
+- TC-CRUD-001~004: 成员详情页 hydration 问题
+- TC-INT-E2E-001: OCR 外部服务超时
+
+### 4. 构建与部署
+
+- Docker 镜像: `v2.5.0` ✅
+- 后端/前端已部署 ✅
+- 移动端 APK: 27.4 MB ✅
+- APK 安装到模拟器: Success ✅
 
 ---
 
 ## 待完成的任务
 
-### P0 - APK 构建（阻塞）
+### P0 - APK 闪退问题调查（阻塞）
 
-**问题**: Gradle 下载失败或网络代理问题
+**问题**: APK 安装后立即崩溃，日志显示 `crash` 但无具体错误
 
-**原因**:
-- Windows 环境下 Gradle wrapper 下载 gradle-8.14.3-bin.zip 失败
-- 多次下载的 checksum 不一致（疑似网络代理问题）
-- 尝试手动下载成功，但 gradlew 验证仍失败
+**尝试的修复**:
+- 添加 `usesCleartextTraffic="true"`
+- 关闭 `newArchEnabled=false`
 
-**解决方案**:
+**可能原因**:
+1. JS bundle 加载失败
+2. New Architecture 兼容性问题
+3. React Native 运行时错误
 
-1. **手动下载 Gradle**:
+**待执行的调查**:
 ```powershell
-# 删除损坏的缓存
-Remove-Item -Path "C:\Users\Administrator\.gradle\wrapper\dists\gradle-8.14.3-bin" -Recurse -Force -Confirm:$false
+# 1. 获取详细日志
+adb logcat -d | grep -i "reactnative\|javascript\|crash"
 
-# 手动下载（配置代理）
-$env:HTTP_PROXY="http://127.0.0.1:10800"
-curl.exe -L "https://services.gradle.org/distributions/gradle-8.14.3-bin.zip" -o "C:\Users\Administrator\.gradle\wrapper\dists\gradle-8.14.3-bin\cv11ve7ro1n3o1j4so8xd9n66\gradle-8.14.3-bin.zip"
+# 2. 检查 APK 中是否包含 JS bundle
+unzip -l app-release.apk | grep "index.android.bundle"
 
-# 构建
-cd C:\Users\Administrator\qa-prompts\family_health_record_app\mobile_app\android
-.\gradlew.bat assembleRelease --no-daemon
+# 3. 尝试 Debug APK
+cd mobile_app/android
+.\gradlew.bat assembleDebug
 ```
 
-2. **或者禁用 Gradle 校验**（不推荐用于生产）:
-```properties
-# gradle-wrapper.properties
-validateDistributionUrl=false
+### P1 - Git 同步
+
+当前有 2 个 commits 未 push 到远程：
 ```
-
-### P1 - 验证修复
-
-APK 构建成功后需要在模拟器上测试：
-1. 打开 App，上传检查单图片
-2. 点击"确认上传"
-3. 验证是否自动触发 OCR 并正确跳转
+d7d7562 docs: 更新 WORK_LOG、BUG_LOG，添加后端 UT pre-commit hook
+efbab22 feat: v2.5.0 - 记录列表API、API超时、眼轴年龄参考值
+```
 
 ---
 
 ## 环境状态
 
-**Docker 服务**:
-- 后端: http://localhost:8000
-- 前端: http://localhost:3001
-- 数据库: PostgreSQL 16
-- 存储: MinIO
-
-**移动端项目路径**:
-- 代码: `C:\Users\Administrator\qa-prompts\family_health_record_app\mobile_app`
-- Android 目录: `mobile_app/android`
+| 服务 | 地址 |
+|------|------|
+| 后端 API | http://localhost:8000 |
+| 前端页面 | http://localhost:3001 |
+| 数据库 | PostgreSQL 16 |
+| 对象存储 | MinIO |
 
 ---
 
 ## 关键文件变更
 
+### 后端修改
 | 文件 | 变更 |
 |------|------|
-| `mobile_app/src/app/upload.tsx` | 上传成功后自动触发 OCR |
-| `mobile_app/android/gradle.properties` | 添加代理配置 |
-| `mobile_app/android/gradle/wrapper/gradle-wrapper.properties` | 禁用 URL 校验 |
+| `backend/app/routers/records.py` | 新增记录列表 API |
+| `backend/app/routers/members.py` | 眼轴参考值按年龄计算 |
+| `backend/app/routers/documents.py` | 眼轴参考值按年龄计算 |
+| `backend/app/routers/review.py` | 眼轴参考值按年龄计算 |
+| `backend/app/api/client.py` | 添加 30s 超时 |
+
+### 前端修改
+| 文件 | 变更 |
+|------|------|
+| `frontend/src/app/api/client.ts` | 添加 30s 超时 + AbortController |
+
+### 移动端修改
+| 文件 | 变更 |
+|------|------|
+| `mobile_app/src/api/client.ts` | 启用 TIMEOUT 配置 |
+| `mobile_app/android/gradle.properties` | 关闭 newArchEnabled |
+| `mobile_app/android/app/src/main/AndroidManifest.xml` | 添加 usesCleartextTraffic |
+
+### 文档更新
+| 文件 | 变更 |
+|------|------|
+| `docs/specs/API_CONTRACT.md` | v2.5.0 契约 |
+| `docs/WORK_LOG_V2.md` | 新增 v2.5.0 记录 |
+| `docs/BUG_LOG.md` | 新增统计 |
+| `.pre-commit-config.yaml` | 添加后端 UT hook |
+
+---
+
+## 下一步计划
+
+1. **调查 APK 闪退**
+   - 使用 adb 获取详细日志
+   - 检查 JS bundle 是否正确打包
+   - 尝试构建 Debug APK 获取更多信息
+
+2. **Git 同步** (如需要)
+   - `git push` 推送到远程仓库
+
+3. **E2E 测试问题** (可选)
+   - 调查成员详情页 hydration 问题
+   - 解决 OCR 超时问题
+
+---
+
+## 项目路线图
+
+- [x] v2.4.0 - 基础 CRUD + OCR
+- [x] v2.5.0 - 记录列表 API + API 超时 + 眼轴年龄
+- [ ] v2.6.0 - APK 闪退修复 (待开发)

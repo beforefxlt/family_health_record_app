@@ -43,6 +43,7 @@ class MemberResponse(BaseModel):
     gender: str
     date_of_birth: date
     member_type: str
+    age_group: str
     last_check_date: Optional[str] = None
     pending_review_count: int = 0
 
@@ -56,6 +57,7 @@ class MemberDetailResponse(BaseModel):
     gender: str
     date_of_birth: date
     member_type: str
+    age_group: str
 
     class Config:
         from_attributes = True
