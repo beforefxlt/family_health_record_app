@@ -32,7 +32,7 @@ test('TC-P1-016: 成员列表 - 展示多个成员 @smoke @regression', async ({
   
   // 创建多个成员
   await createTestMember({ name: '成员A', gender: 'male', member_type: 'child' });
-  await createTestMember({ name: '成员B', gender: 'female', member_type: 'spouse' });
+  await createTestMember({ name: '成员B', gender: 'female', member_type: 'adult' });
   
   await page.goto('/');
   await page.waitForLoadState('networkidle');

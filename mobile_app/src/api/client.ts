@@ -1,4 +1,5 @@
 import { getServerHost, getApiBaseUrl, getMinioBaseUrl } from '../config/serverConfig';
+import { API_CONFIG } from '../constants/api';
 
 class ApiError extends Error {
   constructor(
@@ -17,30 +18,43 @@ async function apiRequest<T>(
   const host = await getServerHost();
   const url = `${getApiBaseUrl(host)}/api/v1${endpoint}`;
   
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+    clearTimeout(timeoutId);
 
-  if (!response.ok) {
-    let errorMessage = `HTTP ${response.status}`;
-    try {
-      const error = await response.json();
-      errorMessage = error.detail || errorMessage;
-    } catch {
-      // Ignore JSON parse errors
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const error = await response.json();
+        errorMessage = error.detail || errorMessage;
+      } catch {
+        // Ignore JSON parse errors
+      }
+      throw new ApiError(response.status, errorMessage);
     }
-    throw new ApiError(response.status, errorMessage);
-  }
 
-  if (response.status === 204) {
-    return null as T;
-  }
+    if (response.status === 204) {
+      return null as T;
+    }
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('请求超时，请稍后重试');
+    }
+    throw error;
+  }
 }
 
 export function transformMinioUrl(minioUrl: string, host: string): string {

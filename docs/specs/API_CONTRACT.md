@@ -1,8 +1,8 @@
 # 家庭检查单管理应用 API 契约
 
-> **版本**: v2.4.0
-> **最后更新**: 2026-04-04
-> **变更说明**: 补充完整数值区间约束表，对齐前端 METRIC_OPTIONS
+> **版本**: v2.5.0
+> **最后更新**: 2026-04-06
+> **变更说明**: 新增记录列表 API，新增 API 超时配置规范
 
 ## 1. 资源对象
 
@@ -313,6 +313,42 @@
       "delta": 2.5
     }
   }
+}
+```
+
+### 2.8 检查记录管理
+
+| 方法 | 路径 | 说明 |
+|:---|:---|:---|
+| `GET` | `/api/v1/records` | 获取记录列表（分页） |
+| `GET` | `/api/v1/documents/records/{record_id}` | 获取单条记录详情 |
+| `DELETE` | `/api/v1/records/exam-records/{record_id}` | 删除检查记录 |
+
+**请求参数 - 记录列表**
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| member_id | string | 否 | 成员ID，不传则返回所有 |
+| page | integer | 否 | 页码，默认 1 |
+| page_size | integer | 否 | 每页数量，默认 20 |
+
+**响应体 - 记录列表**:
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "member_id": "uuid",
+      "member_name": "张三",
+      "exam_date": "2026-03-31",
+      "institution": "XX医院",
+      "metrics_count": 5,
+      "has_abnormal": false
+    }
+  ],
+  "total": 100,
+  "page": 1,
+  "page_size": 20,
+  "total_pages": 5
 }
 ```
 

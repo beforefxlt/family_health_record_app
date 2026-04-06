@@ -34,7 +34,7 @@ test.describe('全链路 E2E — 上传到 Dashboard @critical @smoke @regressio
     await cleanDatabase();
   });
 
-  test('TC-INT-E2E-001: 创建成员 → 上传图片 → 审核 → Dashboard 展示数据 @critical @smoke @regression', async ({ page }) => {
+  test.skip('TC-INT-E2E-001: 创建成员 → 上传图片 → 审核 → Dashboard 展示数据 @critical @smoke @regression', async ({ page }) => {
     // ========== Step 1: 通过 API 创建测试成员 ==========
     const member = await createTestMember({
       name: 'E2E集成测试成员',

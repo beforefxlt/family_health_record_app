@@ -50,7 +50,22 @@ def _calculate_baseline_age_months(date_of_birth: date, exam_date: date) -> int:
     return max(months, 0)
 
 
-def _build_axial_growth_payload(observations: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def _get_axial_reference_by_age(baseline_age_months: int) -> float:
+    if baseline_age_months < 24:
+        return 21.0
+    elif baseline_age_months < 48:
+        return 21.5
+    elif baseline_age_months < 72:
+        return 22.0
+    elif baseline_age_months < 120:
+        return 22.5
+    elif baseline_age_months < 216:
+        return 23.0
+    else:
+        return 23.5
+
+
+def _build_axial_growth_payload(observations: List[Dict[str, Any]], baseline_age_months: Optional[int] = None) -> Optional[Dict[str, Any]]:
     axial_values = {
         item.get("side"): item.get("value_numeric")
         for item in observations
@@ -59,11 +74,13 @@ def _build_axial_growth_payload(observations: List[Dict[str, Any]]) -> Optional[
     if "left" not in axial_values or "right" not in axial_values:
         return None
     average_axial = (axial_values["left"] + axial_values["right"]) / 2
+    reference = _get_axial_reference_by_age(baseline_age_months) if baseline_age_months else 23.0
     return {
         "left": axial_values["left"],
         "right": axial_values["right"],
         "average": round(average_axial, 3),
-        "deviation_vs_reference": round(average_axial - 23.0, 3),
+        "deviation_vs_reference": round(average_axial - reference, 3),
+        "reference_used": reference,
     }
 
 
@@ -339,8 +356,10 @@ async def submit_ocr(document_id: UUID, document_type: str = "eye_axial_length",
             )
             db.add(exam_record)
             await db.flush()
+            baseline_age = exam_record.baseline_age_months
         else:
             exam_record = existing_exam_record
+            baseline_age = exam_record.baseline_age_months
 
         for obs_data in processed_items.get("observations", []):
             existing_observation = await db.scalar(
@@ -366,7 +385,10 @@ async def submit_ocr(document_id: UUID, document_type: str = "eye_axial_length",
                 existing_observation.unit = obs_data["unit"]
                 existing_observation.confidence_score = ocr_data["confidence_score"]
 
-        growth_payload = _build_axial_growth_payload(processed_items.get("observations", []))
+        growth_payload = _build_axial_growth_payload(
+            processed_items.get("observations", []),
+            baseline_age
+        )
         if growth_payload:
             existing_derived = await db.scalar(
                 select(DerivedMetric).where(

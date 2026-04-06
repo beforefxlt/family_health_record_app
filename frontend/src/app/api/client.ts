@@ -4,6 +4,9 @@
 const SSR_API_URL = process.env.API_URL;
 const CLIENT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
+// API 超时配置 (30秒)
+const API_TIMEOUT = 30000;
+
 // 根据运行环境自动选择正确的 API 地址
 const API_BASE_URL = (typeof window === 'undefined' && SSR_API_URL)
   ? SSR_API_URL + '/api/v1'
@@ -27,6 +30,7 @@ async function handleResponse(res: Response) {
 
 /**
  * 包装 fetch 请求，捕获底层网络错误
+ * 支持超时控制 (默认 30s)
  */
 async function safeFetch(url: string, options?: RequestInit) {
   let finalUrl = url;
@@ -39,12 +43,24 @@ async function safeFetch(url: string, options?: RequestInit) {
 
   console.log(`>> [AI-FLOW] Requesting: ${method} ${finalUrl}`);
   
+  // 创建超时控制器
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  
   try {
-    const res = await fetch(finalUrl, options);
+    const res = await fetch(finalUrl, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
     console.log(`<< [AI-FLOW] Response: ${res.status} for ${finalUrl}`);
     return await handleResponse(res);
   } catch (err: any) {
+    clearTimeout(timeoutId);
     console.error(`!! [AI-FLOW] Error for ${finalUrl}:`, err);
+    if (err.name === 'AbortError') {
+      throw new Error('请求超时，请稍后重试');
+    }
     if (err.message.includes('fetch') || err.message.includes('Failed to fetch')) {
       throw new Error('网络连接失败，请确认后端 API 是否已运行');
     }

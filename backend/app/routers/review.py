@@ -189,8 +189,10 @@ async def approve_review_task(
         )
         db.add(exam_record)
         await db.flush()
+        baseline_age = exam_record.baseline_age_months
     else:
         exam_record = existing_exam_record
+        baseline_age = exam_record.baseline_age_months
 
     for obs_data in processed_items.get("observations", []):
         existing_observation = await db.scalar(
@@ -216,7 +218,10 @@ async def approve_review_task(
             existing_observation.unit = obs_data["unit"]
             existing_observation.confidence_score = 1.0
 
-    growth_payload = _build_axial_growth_payload(processed_items.get("observations", []))
+    growth_payload = _build_axial_growth_payload(
+        processed_items.get("observations", []),
+        baseline_age
+    )
     if growth_payload:
         existing_derived = await db.scalar(
             select(DerivedMetric).where(

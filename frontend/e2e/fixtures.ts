@@ -74,7 +74,10 @@ export async function createTestMember(data: {
       member_type: data.member_type || 'child',
     }),
   });
-  if (!res.ok) throw new Error(`创建测试成员失败: ${res.statusText}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`创建测试成员失败: ${res.status} ${res.statusText} - ${errorText}`);
+  }
   return res.json();
 }
 

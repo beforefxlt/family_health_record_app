@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
 from uuid import UUID
 from datetime import date
-from typing import List
+from typing import List, Optional
+from pydantic import BaseModel
 
 from ..db import get_db
 from ..models.member import MemberProfile
@@ -10,6 +12,88 @@ from ..models.observation import ExamRecord, Observation
 from ..schemas.observation import ManualExamCreate, ObservationUpdate
 
 router = APIRouter(prefix="/records", tags=["Records Management"])
+
+class RecordListItem(BaseModel):
+    id: str
+    member_id: str
+    member_name: str
+    exam_date: str
+    institution: Optional[str]
+    metrics_count: int
+    has_abnormal: bool
+
+
+class RecordListResponse(BaseModel):
+    items: List[RecordListItem]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+@router.get("", response_model=RecordListResponse)
+async def list_records(
+    member_id: Optional[UUID] = Query(None, description="成员ID，不传则返回所有"),
+    page: int = Query(1, ge=1, description="页码"),
+    page_size: int = Query(20, ge=1, le=100, description="每页数量"),
+    db: AsyncSession = Depends(get_db)
+):
+    """获取记录列表（分页）"""
+    from pydantic import BaseModel
+    
+    offset = (page - 1) * page_size
+    
+    base_query = select(ExamRecord).join(MemberProfile, ExamRecord.member_id == MemberProfile.id)
+    count_query = select(func.count(ExamRecord.id)).join(
+        MemberProfile, ExamRecord.member_id == MemberProfile.id
+    )
+    
+    if member_id:
+        base_query = base_query.where(ExamRecord.member_id == member_id)
+        count_query = count_query.where(ExamRecord.member_id == member_id)
+    
+    base_query = base_query.where(MemberProfile.is_deleted.is_(False))
+    count_query = count_query.where(MemberProfile.is_deleted.is_(False))
+    
+    total = await db.scalar(count_query) or 0
+    total_pages = (total + page_size - 1) // page_size
+    
+    base_query = base_query.order_by(ExamRecord.exam_date.desc())
+    base_query = base_query.offset(offset).limit(page_size)
+    
+    records = (await db.scalars(base_query)).all()
+    
+    items = []
+    for record in records:
+        obs_count = await db.scalar(
+            select(func.count(Observation.id)).where(Observation.exam_record_id == record.id)
+        ) or 0
+        has_abnormal = await db.scalar(
+            select(func.count(Observation.id)).where(
+                Observation.exam_record_id == record.id,
+                Observation.is_abnormal.is_(True)
+            )
+        ) > 0
+        
+        member = await db.get(MemberProfile, record.member_id)
+        
+        items.append(RecordListItem(
+            id=str(record.id),
+            member_id=str(record.member_id),
+            member_name=member.name if member else "未知",
+            exam_date=record.exam_date.isoformat(),
+            institution=record.institution_name,
+            metrics_count=obs_count,
+            has_abnormal=has_abnormal
+        ))
+    
+    return RecordListResponse(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages
+    )
  
 def check_metric_sanity(metric: str, v: float):
     """业务逻辑校验：针对不同指标执行合理性区间检查（用于 PATCH 场景）
