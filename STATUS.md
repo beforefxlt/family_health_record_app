@@ -14,7 +14,7 @@
 | 后端 API | ✅ 正常 | FastAPI 运行中，v2.5.0 |
 | 后端测试 | ✅ 正常 | 28 passed |
 | 前端页面 | ✅ 正常 | Next.js 运行在端口 3001 |
-| 移动端 APK | ⛔ 崩溃待修复 | Release APK 已安装在模拟器，启动后崩溃，原因：Expo 模块缺失 |
+| 移动端 APK | ⛔ 崩溃待修复 | Release APK 已安装在模拟器，启动后崩溃，原因：Expo 模块缺失（Stage 2：后端 age_group 合并完成，待前端全面切换） |
 | Docker 部署 | ✅ 完成 | v2.5.0 镜像已部署 |
 
 ---

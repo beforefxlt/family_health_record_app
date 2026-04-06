@@ -213,7 +213,7 @@ adb shell pm list packages | Select-String "family"
 # 启动应用
 adb shell monkey -p com.familyhealth.healthrecord -c android.intent.category.LAUNCHER 1
 
-# 查看崩溃日志
+# Release APK 安装后日志收集（示例）
 adb logcat -c  # 清空日志
 adb shell monkey -p com.familyhealth.healthrecord -c android.intent.category.LAUNCHER 1
 Start-Sleep -Seconds 5
