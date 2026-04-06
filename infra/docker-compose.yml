@@ -1,0 +1,101 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: health-record-db
+    environment:
+      POSTGRES_DB: health_record
+      POSTGRES_USER: health_record
+      POSTGRES_PASSWORD: health_record_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U health_record"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: health-record-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: qa-backend:v2.4.0
+    container_name: health-record-backend
+    working_dir: /app/backend
+    volumes:
+      - ../backend:/app/backend
+      - ../docs:/app/docs
+    environment:
+      DATABASE_URL: postgresql+asyncpg://health_record:health_record_password@db:5432/health_record
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: health-records
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY}
+      OCR_MODEL_NAME: Qwen/Qwen3-VL-30B-A3B-Instruct
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # 测试专用后端容器
+  backend-test:
+    image: qa-backend:v2.4.0
+    container_name: health-record-backend-test
+    working_dir: /app/backend
+    volumes:
+      - ../backend:/app/backend
+      - ../docs:/app/docs
+    environment:
+      DATABASE_URL: postgresql+asyncpg://health_record:health_record_password@db:5432/health_record
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: health-records
+      SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY}
+      OCR_MODEL_NAME: Qwen/Qwen3-VL-30B-A3B-Instruct
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: python -m pytest tests/ -v --tb=short
+    profiles:
+      - test
+
+  frontend:
+    image: infra-frontend:v2.4.0
+    container_name: health-record-frontend
+    working_dir: /app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_URL: http://backend:8000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    command: npm start -- -p 3001
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+  minio_data:

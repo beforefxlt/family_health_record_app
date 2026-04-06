@@ -1,0 +1,100 @@
+# 依赖库
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# 后端本地数据库与环境
+.env
+dev.db
+dev.db-journal
+
+# 检查单上传私产 (含用户原始隐私图片)
+uploads/
+
+# 系统生成的测试结果临时文件
+test_input.png
+*.log
+
+# 编辑器与系统文件
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+health_record.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+venv/
+.venv/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Pytest
+.pytest_cache/
+pytest_debug.log
+
+# 临时文件
+tmp/
+*.bak
+*.pcap
+.repomix-output.txt
+.worktrees/
+
+# Claude 配置
+.claude/settings.json
+
+# 前端构建缓存
+**/*.tsbuildinfo
+
+# 测试结果
+**/test-results/
+**/test-results/.*
+
+# Docker 镜像
+**/*.tar
+
+# 数据目录
+**/minio_data/
+**/uploads/
+
+# SQL dump
+**/health_record.sql
+
+# Windows 临时文件
+nul
+
+# React Native / Expo
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/ios/
+**/.expo/
+
+# 移动端构建产物
+**/mobile_app/coverage/
+**/mobile_app/*.apk
+**/mobile_app/extracted.apk
+
+# Playwright
+playwright-report/
+
+# coverage
+**/coverage/
