@@ -30,6 +30,9 @@ export default function MemberDashboard() {
   const [showMenu, setShowMenu] = useState(false);
   const [axialEyeMode, setAxialEyeMode] = useState<EyeMode>('both');
   const [visionEyeMode, setVisionEyeMode] = useState<EyeMode>('both');
+  // Unified age_group derived from backend (elderly/adult) or fallback to member_type senior
+  const ageGroup = member?.age_group ?? (member?.member_type === 'senior' ? 'elderly' : 'adult');
+  const isAdultOrElderly = ageGroup === 'adult' || ageGroup === 'elderly';
 
   useEffect(() => {
     if (id) {
@@ -109,6 +112,7 @@ export default function MemberDashboard() {
           <div>
             <h1 className="text-xl font-bold font-sans tracking-tight text-slate-800" data-testid="member-name">{member?.name}</h1>
             <p className="text-xs text-slate-500">{member?.date_of_birth} · {member?.gender === 'male' ? '男' : member?.gender === 'female' ? '女' : member?.gender}</p>
+            <p className="text-xs text-slate-500">年龄段: {ageGroup}</p>
           </div>
         </div>
         <button 
@@ -235,46 +239,8 @@ export default function MemberDashboard() {
         </section>
       )}
 
-      {/* 老人专属：指标详情（跳过视力/生长发育看板） */}
-      {member?.member_type === 'senior' && (
-        <section className="space-y-6">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <TrendingUp size={20} className="text-green-500" /> 指标详情
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {growthData?.height?.series?.length > 0 && (
-              <div className="glass-card rounded-[32px] p-6 hover:shadow-xl transition-all">
-                <TrendChart data={transformSeries(growthData.height.series)} metric="height" height={180} />
-              </div>
-            )}
-            {growthData?.weight?.series?.length > 0 && (
-              <div className="glass-card rounded-[32px] p-6 hover:shadow-xl transition-all">
-                <TrendChart data={transformSeries(growthData.weight.series)} metric="weight" height={180} />
-              </div>
-            )}
-            {visionData?.axial_length?.series?.length > 0 && (
-              <div className="glass-card rounded-[32px] p-6 hover:shadow-xl transition-all">
-                <TrendChart data={transformSeries(visionData.axial_length.series)} metric="axial_length" height={180} />
-              </div>
-            )}
-            {visionData?.vision_acuity?.series?.length > 0 && (
-              <div className="glass-card rounded-[32px] p-6 hover:shadow-xl transition-all">
-                <TrendChart data={transformSeries(visionData.vision_acuity.series)} metric="vision_acuity" height={180} />
-              </div>
-            )}
-            {growthData?.height?.series?.length === 0 && growthData?.weight?.series?.length === 0 && (
-              <div className="col-span-full glass-card rounded-[32px] p-12 text-center">
-                <p className="text-slate-400 italic">暂无指标数据，请上传检查单</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* 成人/老人专属：指标趋势看板 */}
-      {(member?.member_type === 'adult' || member?.member_type === 'senior') && (
+      
+      {isAdultOrElderly && (
         <section className="space-y-6">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -332,8 +298,8 @@ export default function MemberDashboard() {
         </section>
       )}
 
-      {/* 血检指标看板 - 成人/老人专属 */}
-      {(member?.member_type === 'adult' || member?.member_type === 'senior') && bloodData && (
+      {/* 血检指标看板 - 成人/老人统一视图 */}
+      {isAdultOrElderly && bloodData && (
         <section className="space-y-6">
           <div className="flex items-center justify-between px-2">
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">

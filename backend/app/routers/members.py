@@ -45,6 +45,13 @@ def _get_axial_reference_by_age(baseline_age_months: int) -> float:
         return 23.5
 
 
+def _derive_age_group(dob: date) -> str:
+    """Derive age group from date of birth. Elderly >= 65, else adult."""
+    today = date.today()
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return "elderly" if age >= 65 else "adult"
+
+
 def _build_axial_growth_payload(observations: List[Dict[str, Any]], baseline_age_months: Optional[int] = None) -> Optional[Dict[str, Any]]:
     axial_values = {
         item.get("side"): item.get("value_numeric")
@@ -103,6 +110,7 @@ async def list_members(db: AsyncSession = Depends(get_db)):
             gender=m.gender,
             date_of_birth=m.date_of_birth,
             member_type=m.member_type,
+            age_group=getattr(m, 'age_group', 'adult'),
             last_check_date=last_check.isoformat() if last_check else None,
             pending_review_count=pending_count,
         ))
@@ -116,6 +124,7 @@ async def create_member(data: MemberCreate, db: AsyncSession = Depends(get_db)):
         gender=data.gender,
         date_of_birth=data.date_of_birth,
         member_type=data.member_type,
+        age_group=_derive_age_group(data.date_of_birth),
     )
     db.add(member)
     await db.flush()
@@ -127,6 +136,7 @@ async def create_member(data: MemberCreate, db: AsyncSession = Depends(get_db)):
         gender=member.gender,
         date_of_birth=member.date_of_birth,
         member_type=member.member_type,
+        age_group=member.age_group,
     )
 
 
@@ -142,6 +152,7 @@ async def get_member(member_id: UUID, db: AsyncSession = Depends(get_db)):
         gender=member.gender,
         date_of_birth=member.date_of_birth,
         member_type=member.member_type,
+        age_group=member.age_group,
     )
 
 
@@ -165,6 +176,7 @@ async def update_member(member_id: UUID, data: MemberUpdate, db: AsyncSession = 
         gender=member.gender,
         date_of_birth=member.date_of_birth,
         member_type=member.member_type,
+        age_group=member.age_group,
     )
 
 

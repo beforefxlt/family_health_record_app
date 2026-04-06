@@ -179,8 +179,63 @@ python scripts/qa_pipeline.py --mode e2e --exclude "ux"
 
 ### 移动端 APK 构建
 - 详细文档：[移动端构建问题汇总](../mobile_app/docs/BUILD_ISSUES.md)
-- **Release APK**（推荐用于真机/模拟器部署）：`mobile_app/android/app/build/outputs/apk/release/app-release.apk`
-- **Debug APK**（需 Metro 服务器）：`mobile_app/android/app/build/outputs/apk/debug/app-debug.apk`
+- Release APK（用于真机测试；如需模拟器也可用）: `mobile_app/android/app/build/outputs/apk/release/app-release.apk`
+- Debug APK（需 Metro 服务器）：`mobile_app/android/app/build/outputs/apk/debug/app-debug.apk`
+
+#### Release APK 安装记录（模拟器/真机均可）
+- Release APK 已在安卓模拟器上安装测试，包名 com.familyhealth.healthrecord。
+- 安装命令：adb install -r mobile_app/android/app/build/outputs/apk/release/app-release.apk
+- 启动应用测试：adb shell monkey -p com.familyhealth.healthrecord -c android.intent.category.LAUNCHER 1
+- 崩溃日志获取：adb logcat -d | Select-String -Pattern "FATAL|crash|Exception|ReactNative|Error" | Select-Object -Last 100
+- 当前初步日志显示 Expo 模块缺失导致的初始化崩溃，待排查并修复打包配置。
+
+#### ADB 调试命令
+
+**环境准备**:
+```powershell
+# adb 路径: $env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe
+# 临时添加到 PATH:
+$env:PATH += ";$env:LOCALAPPDATA\Android\Sdk\platform-tools"
+```
+
+**常用命令**:
+```powershell
+# 查看连接的设备
+adb devices
+
+# 安装 APK
+adb install -r mobile_app/android/app/build/outputs/apk/release/app-release.apk
+
+# 查看已安装的包
+adb shell pm list packages | Select-String "family"
+# 当前包名: com.familyhealth.healthrecord
+
+# 启动应用
+adb shell monkey -p com.familyhealth.healthrecord -c android.intent.category.LAUNCHER 1
+
+# Release APK 安装后日志收集（示例）
+adb logcat -c  # 清空日志
+adb shell monkey -p com.familyhealth.healthrecord -c android.intent.category.LAUNCHER 1
+Start-Sleep -Seconds 5
+adb logcat -d | Select-String -Pattern "FATAL|crash|Exception|ReactNative|JavaScript|Error" | Select-Object -Last 80
+
+# 实时日志监控
+adb logcat | Select-String -Pattern "FATAL|Exception|ReactNative"
+
+# 卸载应用
+adb uninstall com.familyhealth.healthrecord
+
+# 查看应用日志（按包名过滤）
+adb logcat | Select-String "com.familyhealth.healthrecord"
+```
+
+**APK 闪退调查记录** (2026-04-06):
+| 步骤 | 命令 | 结果 |
+|------|------|------|
+| 检查设备 | `adb devices` | emulator-5554 device |
+| 检查包名 | `adb shell pm list packages \| Select-String "family"` | package:com.familyhealth.healthrecord |
+| 尝试启动 | `adb shell monkey -p com.familyhealthrecord.app ...` | No activities found（包名错误） |
+| 正确包名 | `com.familyhealth.healthrecord` | 需重新测试 |
 
 ### 健康检查
 ```bash

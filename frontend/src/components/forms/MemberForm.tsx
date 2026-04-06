@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, Heart, Baby, Accessibility } from 'lucide-react';
 
-export type MemberType = 'child' | 'adult' | 'senior';
+// Age group is derived on backend; UI no longer selects age group
 
 interface MemberFormProps {
   initialData?: {
@@ -9,7 +9,6 @@ interface MemberFormProps {
     name: string;
     gender: string;
     date_of_birth: string;
-    member_type: string;
   };
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
@@ -33,7 +32,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({
     gender: reverseGenderMap[initialData?.gender || ''] || initialData?.gender || '男',
     birthYear: initialData?.date_of_birth ? initialData.date_of_birth.split('-')[0] : '',
     birthMonth: initialData?.date_of_birth ? parseInt(initialData.date_of_birth.split('-')[1]).toString() : '',
-    member_type: initialData?.member_type || 'child',
   });
 
   useEffect(() => {
@@ -55,7 +53,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({
         name: formData.name,
         gender: genderMap[formData.gender] || formData.gender,
         date_of_birth: formattedDate,
-        member_type: formData.member_type,
       });
     } catch (err) {
       console.error('Submit failed:', err);
@@ -116,18 +113,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({
               <option value="女">女</option>
             </select>
           </div>
-          <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 px-1">成员类型</label>
-            <select
-              value={formData.member_type}
-              onChange={(e) => setFormData({ ...formData, member_type: e.target.value })}
-              className="w-full bg-slate-50 border-2 border-transparent rounded-2xl p-4 transition-all focus:bg-white focus:border-blue-500/20 outline-none font-medium"
-            >
-              <option value="child">儿童</option>
-              <option value="adult">成人</option>
-              <option value="senior">老人</option>
-            </select>
-          </div>
+          { /* age group selection removed in Stage 3; derived on backend */ }
         </div>
 
         <div>

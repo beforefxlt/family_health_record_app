@@ -15,6 +15,7 @@ class MemberProfile(Base):
     gender: Mapped[str] = mapped_column(String(20))
     date_of_birth: Mapped[date] = mapped_column(Date())
     member_type: Mapped[str] = mapped_column(String(50))
+    age_group: Mapped[str] = mapped_column(String(16), nullable=False, default="adult")
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

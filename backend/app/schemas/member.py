@@ -7,7 +7,7 @@ class MemberCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     gender: str = Field(..., pattern="^(male|female)$")
     date_of_birth: date
-    member_type: str = Field(..., pattern="^(child|adult|senior)$")
+    member_type: Optional[str] = Field(None, pattern="^(child|adult|senior)$")
 
     @field_validator("gender", "member_type", mode="before")
     @classmethod
@@ -43,6 +43,7 @@ class MemberResponse(BaseModel):
     gender: str
     date_of_birth: date
     member_type: str
+    age_group: str
     last_check_date: Optional[str] = None
     pending_review_count: int = 0
 
@@ -56,6 +57,7 @@ class MemberDetailResponse(BaseModel):
     gender: str
     date_of_birth: date
     member_type: str
+    age_group: str
 
     class Config:
         from_attributes = True
