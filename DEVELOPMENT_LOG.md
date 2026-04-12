@@ -42,6 +42,7 @@
 * [x] 联调验证 8 个 API 端点
 * [x] E2E 全流程验证通过 (创建成员 → 上传 → OCR → 审核 → 趋势)
 * [x] Android Release APK 回归通过（模拟器安装、启动、logcat 无崩溃）
+* [x] 文档治理门禁落地（AGENTS.md + pre-commit + GitHub Actions）
 
 ### 4. 规格文档 (8 个文件)
 * [x] PRD.md / UI_SPEC.md / API_CONTRACT.md / DATABASE_SCHEMA.md

@@ -40,9 +40,15 @@
 
 本项目采用以下文档体系记录进度，所有 Agent 与参与者需严格遵守：
 
+- **[协作规范] [AGENTS.md](./AGENTS.md)**: 定义代码改动到文档改动的强制映射，以及提交前门禁流程。
 - **[全局状态] [STATUS.md](./STATUS.md)**: **单一真相源 (SSOT)**。包含当前版本、模块状态、阻塞问题 (P0)、待办任务与路线图。开始工作前必读，阶段性任务完成后必更。
 - **[流水日志] [DEVELOPMENT_LOG.md](./DEVELOPMENT_LOG.md)**: **增量日志**。由 AI 自动生成，记录具体的文件变更、测试统计与 Git Commit，作为增量追踪参考。
 - **[缺陷治理] [docs/BUG_LOG.md](./docs/BUG_LOG.md)**: 详细记录已修复 Bug 的根因分析 (5-Why) 与预防措施。
+
+文档门禁：
+- 本地提交前执行 `python scripts/check_docs_alignment.py`
+- pre-commit 自动执行同一检查
+- GitHub Actions 对 `push/pull_request` 再执行一次，未对齐直接失败
 
 ## 目录
 
