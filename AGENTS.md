@@ -77,10 +77,12 @@
 4. 改 `DEVELOPMENT_LOG.md`
 5. 如属缺陷修复，改 `docs/BUG_LOG.md`
 6. 运行 `python scripts/check_docs_alignment.py`
-7. 通过后再 commit
+7. `git commit` 信息必须包含中文
+8. 通过后再 commit
 
 ## 门禁
 
 - pre-commit 会执行 `scripts/check_docs_alignment.py`
+- commit-msg 会执行 `scripts/check_commit_message.py`
 - GitHub Actions 会执行同一门禁
 - 门禁失败时，不接受“文档下次补”的提交

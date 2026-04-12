@@ -37,3 +37,9 @@ repos:
         types: [python, typescript, javascript]
         stages: [pre-commit]
         always_run: true
+      - id: commit-message-must-be-chinese
+        name: Commit Message Must Be Chinese
+        description: 检查 git commit message 必须包含中文
+        entry: python scripts/check_commit_message.py
+        language: system
+        stages: [commit-msg]

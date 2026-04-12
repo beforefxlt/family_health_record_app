@@ -47,8 +47,9 @@
 
 文档门禁：
 - 本地提交前执行 `python scripts/check_docs_alignment.py`
+- `git commit` message 必须包含中文
 - pre-commit 自动执行同一检查
-- GitHub Actions 对 `push/pull_request` 再执行一次，未对齐直接失败
+- GitHub Actions 对 `push/pull_request` 再执行一次，未对齐或 commit message 不合规直接失败
 
 ## 目录
 

@@ -66,6 +66,7 @@
 - [ ] **Git 同步**: 推送 `v2.5.0` 的 2 个待提交 commit 到远程。
 - [ ] **PostgreSQL 迁移**: 生产环境正式数据库配置验证。
 - [x] **文档治理门禁**: 已建立 `AGENTS.md` + pre-commit + GitHub Actions 文档对齐检查。
+- [x] **提交规范门禁**: 已建立 commit message 中文校验（commit-msg hook + GitHub Actions）。
 
 ---
 
