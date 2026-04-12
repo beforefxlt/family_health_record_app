@@ -46,6 +46,35 @@ export default function MemberDashboardPage() {
     await loadData();
     setRefreshing(false);
   }, [loadData]);
+  
+  const MetricCard = ({ 
+    metric, 
+    title, 
+    unit, 
+    series 
+  }: { 
+    metric: string, 
+    title: string, 
+    unit?: string, 
+    series?: any[] 
+  }) => {
+    const latest = getLatestValue(series || []);
+    return (
+      <TouchableOpacity
+        style={styles.metricCard}
+        onPress={() => router.push(`/member/${id}/trends?metric=${metric}`)}
+      >
+        <Text style={styles.cardTitle}>{title}</Text>
+        <View style={styles.valueRow}>
+          <Text style={styles.cardValue}>{latest?.value || 'N/A'}</Text>
+          {unit && <Text style={styles.cardUnit}> {unit}</Text>}
+        </View>
+        {latest?.date && (
+          <Text style={styles.cardDate}>记录于 {latest.date}</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   if (loading || !member) {
     return (
@@ -77,49 +106,33 @@ export default function MemberDashboardPage() {
           <>
             <Text style={styles.sectionTitle}>近视防控</Text>
             <View style={styles.cardRow}>
-              <TouchableOpacity
-                style={styles.metricCard}
-                onPress={() => router.push(`/member/${id}/trends?metric=axial_length`)}
-              >
-                <Text style={styles.cardTitle}>{METRIC_LABELS.axial_length}</Text>
-                <Text style={styles.cardValue}>
-                  {getLatestValue(visionData?.axial_length?.series)?.value || 'N/A'}
-                </Text>
-                <Text style={styles.cardUnit}>mm</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.metricCard}
-                onPress={() => router.push(`/member/${id}/trends?metric=vision_acuity`)}
-              >
-                <Text style={styles.cardTitle}>{METRIC_LABELS.vision_acuity}</Text>
-                <Text style={styles.cardValue}>
-                  {getLatestValue(visionData?.vision_acuity?.series)?.value || 'N/A'}
-                </Text>
-              </TouchableOpacity>
+              <MetricCard 
+                metric="axial_length" 
+                title={METRIC_LABELS.axial_length} 
+                unit="mm" 
+                series={visionData?.axial_length?.series} 
+              />
+              <MetricCard 
+                metric="vision_acuity" 
+                title={METRIC_LABELS.vision_acuity} 
+                series={visionData?.vision_acuity?.series} 
+              />
             </View>
 
             <Text style={styles.sectionTitle}>生长发育</Text>
             <View style={styles.cardRow}>
-              <TouchableOpacity
-                style={styles.metricCard}
-                onPress={() => router.push(`/member/${id}/trends?metric=height`)}
-              >
-                <Text style={styles.cardTitle}>{METRIC_LABELS.height}</Text>
-                <Text style={styles.cardValue}>
-                  {getLatestValue(growthData?.height?.series)?.value || 'N/A'}
-                </Text>
-                <Text style={styles.cardUnit}>cm</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.metricCard}
-                onPress={() => router.push(`/member/${id}/trends?metric=weight`)}
-              >
-                <Text style={styles.cardTitle}>{METRIC_LABELS.weight}</Text>
-                <Text style={styles.cardValue}>
-                  {getLatestValue(growthData?.weight?.series)?.value || 'N/A'}
-                </Text>
-                <Text style={styles.cardUnit}>kg</Text>
-              </TouchableOpacity>
+              <MetricCard 
+                metric="height" 
+                title={METRIC_LABELS.height} 
+                unit="cm" 
+                series={growthData?.height?.series} 
+              />
+              <MetricCard 
+                metric="weight" 
+                title={METRIC_LABELS.weight} 
+                unit="kg" 
+                series={growthData?.weight?.series} 
+              />
             </View>
           </>
         )}
@@ -128,52 +141,36 @@ export default function MemberDashboardPage() {
           <>
             <Text style={styles.sectionTitle}>健康指标</Text>
             <View style={styles.cardRow}>
-              {growthData?.height?.series?.length > 0 && (
-                <TouchableOpacity
-                  style={styles.metricCard}
-                  onPress={() => router.push(`/member/${id}/trends?metric=height`)}
-                >
-                  <Text style={styles.cardTitle}>{METRIC_LABELS.height}</Text>
-                  <Text style={styles.cardValue}>
-                    {getLatestValue(growthData?.height?.series)?.value || 'N/A'}
-                  </Text>
-                  <Text style={styles.cardUnit}>cm</Text>
-                </TouchableOpacity>
+              {(growthData?.height?.series?.length ?? 0) > 0 && (
+                <MetricCard 
+                  metric="height" 
+                  title={METRIC_LABELS.height} 
+                  unit="cm" 
+                  series={growthData?.height?.series} 
+                />
               )}
-              {growthData?.weight?.series?.length > 0 && (
-                <TouchableOpacity
-                  style={styles.metricCard}
-                  onPress={() => router.push(`/member/${id}/trends?metric=weight`)}
-                >
-                  <Text style={styles.cardTitle}>{METRIC_LABELS.weight}</Text>
-                  <Text style={styles.cardValue}>
-                    {getLatestValue(growthData?.weight?.series)?.value || 'N/A'}
-                  </Text>
-                  <Text style={styles.cardUnit}>kg</Text>
-                </TouchableOpacity>
+              {(growthData?.weight?.series?.length ?? 0) > 0 && (
+                <MetricCard 
+                  metric="weight" 
+                  title={METRIC_LABELS.weight} 
+                  unit="kg" 
+                  series={growthData?.weight?.series} 
+                />
               )}
-              {visionData?.axial_length?.series?.length > 0 && (
-                <TouchableOpacity
-                  style={styles.metricCard}
-                  onPress={() => router.push(`/member/${id}/trends?metric=axial_length`)}
-                >
-                  <Text style={styles.cardTitle}>{METRIC_LABELS.axial_length}</Text>
-                  <Text style={styles.cardValue}>
-                    {getLatestValue(visionData?.axial_length?.series)?.value || 'N/A'}
-                  </Text>
-                  <Text style={styles.cardUnit}>mm</Text>
-                </TouchableOpacity>
+              {(visionData?.axial_length?.series?.length ?? 0) > 0 && (
+                <MetricCard 
+                  metric="axial_length" 
+                  title={METRIC_LABELS.axial_length} 
+                  unit="mm" 
+                  series={visionData?.axial_length?.series} 
+                />
               )}
-              {visionData?.vision_acuity?.series?.length > 0 && (
-                <TouchableOpacity
-                  style={styles.metricCard}
-                  onPress={() => router.push(`/member/${id}/trends?metric=vision_acuity`)}
-                >
-                  <Text style={styles.cardTitle}>{METRIC_LABELS.vision_acuity}</Text>
-                  <Text style={styles.cardValue}>
-                    {getLatestValue(visionData?.vision_acuity?.series)?.value || 'N/A'}
-                  </Text>
-                </TouchableOpacity>
+              {(visionData?.vision_acuity?.series?.length ?? 0) > 0 && (
+                <MetricCard 
+                  metric="vision_acuity" 
+                  title={METRIC_LABELS.vision_acuity} 
+                  series={visionData?.vision_acuity?.series} 
+                />
               )}
             </View>
 
@@ -181,89 +178,61 @@ export default function MemberDashboardPage() {
               <>
                 <Text style={styles.sectionTitle}>血检指标</Text>
                 <View style={styles.cardRow}>
-                  {bloodData?.glucose?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=glucose`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.glucose}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.glucose?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>mmol/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.glucose?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="glucose" 
+                      title={METRIC_LABELS.glucose} 
+                      unit="mmol/L" 
+                      series={bloodData?.glucose?.series} 
+                    />
                   )}
-                  {bloodData?.tc?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=tc`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.tc}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.tc?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>mmol/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.tc?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="tc" 
+                      title={METRIC_LABELS.tc} 
+                      unit="mmol/L" 
+                      series={bloodData?.tc?.series} 
+                    />
                   )}
-                  {bloodData?.tg?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=tg`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.tg}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.tg?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>mmol/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.tg?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="tg" 
+                      title={METRIC_LABELS.tg} 
+                      unit="mmol/L" 
+                      series={bloodData?.tg?.series} 
+                    />
                   )}
-                  {bloodData?.hdl?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=hdl`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.hdl}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.hdl?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>mmol/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.hdl?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="hdl" 
+                      title={METRIC_LABELS.hdl} 
+                      unit="mmol/L" 
+                      series={bloodData?.hdl?.series} 
+                    />
                   )}
-                  {bloodData?.ldl?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=ldl`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.ldl}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.ldl?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>mmol/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.ldl?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="ldl" 
+                      title={METRIC_LABELS.ldl} 
+                      unit="mmol/L" 
+                      series={bloodData?.ldl?.series} 
+                    />
                   )}
-                  {bloodData?.hemoglobin?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=hemoglobin`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.hemoglobin}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.hemoglobin?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>g/L</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.hemoglobin?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="hemoglobin" 
+                      title={METRIC_LABELS.hemoglobin} 
+                      unit="g/L" 
+                      series={bloodData?.hemoglobin?.series} 
+                    />
                   )}
-                  {bloodData?.hba1c?.series?.length > 0 && (
-                    <TouchableOpacity
-                      style={styles.metricCard}
-                      onPress={() => router.push(`/member/${id}/trends?metric=hba1c`)}
-                    >
-                      <Text style={styles.cardTitle}>{METRIC_LABELS.hba1c}</Text>
-                      <Text style={styles.cardValue}>
-                        {getLatestValue(bloodData?.hba1c?.series)?.value || 'N/A'}
-                      </Text>
-                      <Text style={styles.cardUnit}>%</Text>
-                    </TouchableOpacity>
+                  {(bloodData?.hba1c?.series?.length ?? 0) > 0 && (
+                    <MetricCard 
+                      metric="hba1c" 
+                      title={METRIC_LABELS.hba1c} 
+                      unit="%" 
+                      series={bloodData?.hba1c?.series} 
+                    />
                   )}
                 </View>
               </>
@@ -379,12 +348,21 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
     marginTop: 8,
   },
   cardUnit: {
     fontSize: 14,
     color: '#999',
-    marginTop: 4,
+    marginLeft: 2,
+  },
+  cardDate: {
+    fontSize: 11,
+    color: '#999',
+    marginTop: 8,
   },
   pendingCard: {
     backgroundColor: '#FFF3CD',

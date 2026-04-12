@@ -111,7 +111,7 @@ export default function ReviewDetailPage() {
         {task.ocr_result?.observations?.[0] && (
           <Image
             source={{ uri: resolveImageUrl(
-              task.ocr_result.observations[0].file_url,
+              undefined,
               task.document_id,
               minioBaseUrl
             ) }}

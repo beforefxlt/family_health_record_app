@@ -1,20 +1,16 @@
-# 家庭检查单管理应用 - 开发流水日志
+# 家庭检查单管理应用 - 每日开发日志 (2026-03-31)
 
-> **文档性质**: 自动生成的增量开发流水日志（追踪文件变更与 Commit）。
-> **项目现状**: 全局状态、版本与 P0 进度请参考 **[STATUS.md](./STATUS.md)**。
-> **最后更新**: 2026-04-12
+> **最后更新**: 2026-04-12 12:50 (自动同步)
+> **版本**: v1.3.0
 
 ## 当前状态快照
 
 | 指标 | 数值 |
 |:---|:---|
-| 后端测试 | 72 passed, 0 failed |
-| 后端源文件 | 19 个 (app/) |
-| 测试文件 | 12 个 (tests/) |
-| 前端源文件 | 4 个 (src/) |
-| 移动端 Jest | 371 passed, 0 failed |
-| Git 工作区 | 0 个已修改, 0 个未跟踪 |
-| Git 暂存区 | 0 个已暂存 |
+| 后端测试 | 0 passed, 0 failed |
+| 后端源文件 | 23 个 (app/) |
+| 测试文件 | 32 个 (tests/) |
+| Git 未提交修改 | 0 个已修改, 0 个新增 |
 
 ---
 
@@ -36,14 +32,9 @@
 * [x] API 客户端 17 个方法
 
 ### 3. 测试层
-* [x] 72 个测试用例 (72 passed, 0 failed)
-* [x] 移动端 Jest 回归 371 个用例 (371 passed, 0 failed)
+* [x] 32 个测试用例全部通过 (pytest)
 * [x] TypeScript 零错误 (tsc --noEmit)
 * [x] 联调验证 8 个 API 端点
-* [x] E2E 全流程验证通过 (创建成员 → 上传 → OCR → 审核 → 趋势)
-* [x] Android Release APK 回归通过（模拟器安装、启动、logcat 无崩溃）
-* [x] 文档治理门禁落地（AGENTS.md + pre-commit + GitHub Actions）
-* [x] 提交规范门禁落地（git commit message 必须包含中文）
 
 ### 4. 规格文档 (8 个文件)
 * [x] PRD.md / UI_SPEC.md / API_CONTRACT.md / DATABASE_SCHEMA.md
@@ -66,26 +57,14 @@
 
 ---
 
-## 缺陷与治理
-- **累计修复**: 17 个 (BUG-001 ~ BUG-017)
-- **详情归档**: [BUG_LOG.md](file:///c:/Users/Administrator/qa-prompts/family_health_record_app/docs/BUG_LOG.md)
-
----
-
----
-
-## 最近提交记录
-
-```
-ba65024 fix: stabilize android release startup
-8ded10f 文档: 整合状态文档并规范进度管理
-ace924d Merge stage3: unify age_group model; add age_group to Member; contract tests; docs; release script
-```
-
----
-
-## 工作区变更文件
-
-```
-<clean>
-```
+## 已修复缺陷 (BUG-004 ~ BUG-011)
+| 编号 | 问题 | 修复 |
+|:---|:---|:---|
+| BUG-004 | 脱敏未接入 OCR | ocr_orchestrator.py 新增脱敏步骤 |
+| BUG-005 | 旧 DB schema 残留 | 删除 health_record.db |
+| BUG-006 | 趋势仅覆盖眼轴 | 9 指标切换标签 |
+| BUG-007 | 成员编辑无 UI | 编辑弹窗 + 删除按钮 |
+| BUG-008 | 文件名并发覆盖 | UUID 唯一文件名 |
+| BUG-009 | 测试引用已删除 Account | 修正 3 个测试文件 |
+| BUG-010 | 脱敏对非图片崩溃 | try/catch 兜底 |
+| BUG-011 | TimeoutError 未捕获 | 新增 except 分支 |
