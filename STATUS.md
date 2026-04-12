@@ -15,7 +15,7 @@
 |:---|:---|:---|
 | **后端 API** | ✅ 正常 | FastAPI v2.5.0, 支持记录列表分页、超时与眼轴动态参考值 |
 | **前端页面** | ✅ 正常 | Next.js 15, 玻璃拟态界面, 已支持大模型 OCR 结果审核流 |
-| **移动端 APK** | ⛔ 崩溃 (P0) | Release APK 启动后闪退。疑似 Expo 模块缺失或新架构兼容性问题 |
+| **移动端 APK** | ✅ 模拟器验证通过 | 最新 Release APK 已在 Android 模拟器成功启动，`assets/index.android.bundle` 已打入 APK，当前使用 Legacy Architecture 稳定运行 |
 | **数据库** | ✅ 正常 | PostgreSQL 16 (本地兼容 SQLite), 已完成重建与迁移验证 |
 | **对象存储** | ✅ 正常 | MinIO 运行中, 支持 UUID 唯一化存储 |
 | **OCR 编排** | ✅ 正常 | Qwen2.5-VL-32B 模型 + 规则引擎校验 |
@@ -52,12 +52,15 @@
 
 ## 3. 待办任务清单
 
-### P0 - 移动端 APK 闪退调查 (阻塞中)
-**现象**: APK 安装后立即崩溃，无法进入启动页。
+### P0 - 移动端 APK 闪退调查 (已收口)
+**现象**: 历史 Release APK 曾出现安装后立即崩溃，无法进入启动页。
+**最新进展**:
+- [x] 本地 `./gradlew assembleRelease --no-daemon` 构建通过。
+- [x] 已确认 `assets/index.android.bundle` 正确打包进 APK。
+- [x] 已将 Expo 源配置 `mobile_app/app.json` 的 `newArchEnabled` 统一为 `false`，避免后续 `prebuild` 回写风险配置。
+- [x] 已在 Android 模拟器安装并启动最新 Release APK，应用成功进入首页，进程存活，`logcat` 未见 `FATAL EXCEPTION`。
 **待执行动作**:
-- [ ] `adb logcat` 获取详细运行时崩溃堆栈。
-- [ ] 检查 `index.android.bundle` 是否已正确打包进 APK。
-- [ ] 切换至 Debug 模式构建以获取开发环境错误报告。
+- [ ] 选做：在真机上补一次安装与启动验证。
 
 ### P1 - 基础设施与同步
 - [ ] **Git 同步**: 推送 `v2.5.0` 的 2 个待提交 commit 到远程。
@@ -76,4 +79,4 @@
 ## 5. 项目路线图
 - [x] **v2.4.0**: 基础数据通路与 OCR 核心闭环
 - [x] **v2.5.0**: 列表增强、治理超时与动态参考值
-- [ ] **v2.6.0**: 修复移动端闪退，性能优化与分页增强 (待开始)
+- [ ] **v2.6.0**: 真机补充验证、性能优化与分页增强

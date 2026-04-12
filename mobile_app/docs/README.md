@@ -84,6 +84,27 @@ cd family_health_record_app/mobile_app
 npm install
 ```
 
+### 5.2.1 adb 配置（Windows）
+
+如果执行 `adb devices` 提示命令不存在，需要确认 Android SDK 的 `platform-tools` 已加入 `PATH`。
+
+当前机器的 `adb` 路径：
+
+```powershell
+C:\Users\Administrator\AppData\Local\Android\Sdk\platform-tools\adb.exe
+```
+
+已追加到当前用户级 `PATH`。注意：
+
+- 新开的 PowerShell / CMD / VS Code 终端会自动生效
+- 已经打开的旧终端需要重开一次
+
+如果仍想临时直接调用，可使用绝对路径：
+
+```powershell
+& 'C:\Users\Administrator\AppData\Local\Android\Sdk\platform-tools\adb.exe' devices
+```
+
 ### 5.3 运行
 
 ```bash
