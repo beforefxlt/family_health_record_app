@@ -160,7 +160,7 @@
 | BVA-AGE-006 | 出生日期为18年前（恰好216月龄） | date_of_birth = today - 18年 | baseline_age_months=216，儿童→成人切换边界 | P4 |
 | BVA-AGE-007 | 出生日期为18年零1天前（>216月龄） | date_of_birth = today - 18年 - 1天 | baseline_age_months>216，判定为 adult | P4 |
 | BVA-AGE-008 | 出生日期为未来日期 | date_of_birth = today + 1天 | 创建成员时返回 400 错误，拒绝未来出生日期 | P4 |
-| BVA-AGE-009 | 出生日期为极远历史（100年前） | date_of_birth = today - 100年 | baseline_age_months=1200，成员类型为 senior | P4 |
+| BVA-AGE-009 | 出生日期为极远历史（100年前） | date_of_birth = today - 100年 | baseline_age_months=1200，成员类型为 adult（已废弃 senior，18岁+均判定为 adult） | P4 |
 
 ### 2.2 member_type 切换边界
 
@@ -171,12 +171,10 @@
 | BVA-MT-003 | 17岁11月龄 + member_type=adult（类型与年龄不匹配） | 年龄≈215月龄, type=adult | 以 member_type 为准，展示成人模块（尊重用户选择） | P4 |
 | BVA-MT-004 | 18岁0月龄 + member_type=child（类型与年龄不匹配） | 年龄=216月龄, type=child | 以 member_type 为准，展示儿童模块（尊重用户选择） | P4 |
 | BVA-MT-005 | 59岁11月龄 + member_type=adult | 年龄≈719月龄, type=adult | 正确识别为成人，展示血糖与血脂模块 | P4 |
-| BVA-MT-006 | 60岁0月龄 + member_type=senior | 年龄=720月龄, type=senior | 正确识别为老人，第一阶段与 adult 同规则 | P4 |
-| BVA-MT-007 | 59岁11月龄 + member_type=senior（类型与年龄不匹配） | 年龄≈719月龄, type=senior | 以 member_type 为准，展示老人模块（与 adult 同规则） | P4 |
-| BVA-MT-008 | 60岁0月龄 + member_type=adult（类型与年龄不匹配） | 年龄=720月龄, type=adult | 以 member_type 为准，展示成人模块 | P4 |
-| BVA-MT-009 | 儿童成员不展示代谢类百分位参考带 | member_type=child | Dashboard 不显示血糖/血脂百分位参考 | P4 |
-| BVA-MT-010 | 成人成员不展示远视储备算法 | member_type=adult | Dashboard 不显示远视储备相关提示 | P4 |
-| BVA-MT-011 | 老人成员不展示远视储备算法 | member_type=senior | Dashboard 不显示远视储备相关提示 | P4 |
+| BVA-MT-006 | 60岁0月龄 + member_type=adult（自动判定） | 年龄=720月龄, type=adult | 正确识别为成人，展示血糖与血脂模块 | P4 |
+| BVA-MT-007 | 80岁0月龄 + member_type=adult（自动判定） | 年龄=960月龄, type=adult | 正确识别为成人，展示血糖与血脂模块 | P4 |
+| BVA-MT-008 | 儿童成员不展示代谢类百分位参考带 | member_type=child | Dashboard 不显示血糖/血脂百分位参考 | P4 |
+| BVA-MT-009 | 成人成员不展示远视储备算法 | member_type=adult | Dashboard 不显示远视储备相关提示 | P4 |
 | BVA-MT-012 | 儿童成员不展示老人/成人模块 | member_type=child | Dashboard 默认首页为生长发育与视力模块 | P4 |
 
 ---
@@ -281,7 +279,7 @@
 | BVA-CMB-004 | 同一检查单所有指标均越界 | 所有指标=max_val+0.1 | 全部被拒绝，生成多个冲突项 | P4 |
 | BVA-CMB-005 | 同一检查单部分指标越界部分合法 | height=170(合法), glucose=50.1(越界) | 合法指标通过，越界指标触发 rule_conflict | P4 |
 | BVA-CMB-006 | 新生儿(0月龄) + 身高体重边界值 | age=0月, height=30cm, weight=1kg | 数值在规则引擎范围内通过，但临床参考区间可能异常 | P4 |
-| BVA-CMB-007 | 老人(60岁) + 眼轴数据 | member_type=senior + axial_length=24mm | 数值通过规则引擎，但老人不应有眼轴数据（产品逻辑） | P4 |
+| BVA-CMB-007 | 成人(60岁) + 眼轴数据 | member_type=adult + axial_length=24mm | 数值通过规则引擎，但成人默认不查看眼轴趋势（产品逻辑） | P4 |
 | BVA-CMB-008 | 趋势查询：成员无数据 + 任意时间窗口 | 成员无 observations + range=3月 | 返回空 series，前端展示空状态 | P4 |
 | BVA-CMB-009 | 趋势查询：成员仅有1个数据点 | 1条 observation + range=3月 | 返回单点数据，趋势图不显示连线 | P4 |
 | BVA-CMB-010 | 趋势查询：所有数据点均在窗口外 | 数据点均在1年前 + range=3月 | 返回空 series | P4 |

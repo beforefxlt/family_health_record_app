@@ -94,8 +94,8 @@ async def test_create_adult_member(route_env):
 
 
 @pytest.mark.asyncio
-async def test_create_senior_member(route_env):
-    """[TC-P1-005] 创建 member_type=senior 的老人成员"""
+async def test_create_senior_member_returns_422(route_env):
+    """[FAILURE-PATH] 创建已废弃的 member_type=senior 应返回 422 验证错误"""
     client, _ = route_env
     resp = await client.post(
         "/api/v1/members",
@@ -106,11 +106,8 @@ async def test_create_senior_member(route_env):
             "member_type": "senior",
         },
     )
-    assert resp.status_code == 201
-    data = resp.json()
-    assert data["name"] == "老人成员"
-    assert data["member_type"] == "senior"
-    assert data["gender"] == "male"
+    # 因为 Pydantic Schema 已经移除了 senior正则，提交 senior 会触发 422
+    assert resp.status_code == 422
 
 
 @pytest.mark.asyncio

@@ -7,7 +7,7 @@ class MemberCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     gender: str = Field(..., pattern="^(male|female)$")
     date_of_birth: date
-    member_type: Optional[str] = Field(None, pattern="^(child|adult|senior)$")
+    member_type: Optional[str] = Field(None, pattern="^(child|adult)$")
 
     @field_validator("gender", "member_type", mode="before")
     @classmethod
@@ -27,7 +27,7 @@ class MemberUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=50)
     gender: Optional[str] = Field(None, pattern="^(male|female)$")
     date_of_birth: Optional[date] = None
-    member_type: Optional[str] = Field(None, pattern="^(child|adult|senior)$")
+    member_type: Optional[str] = Field(None, pattern="^(child|adult)$")
 
     @field_validator("date_of_birth")
     @classmethod

@@ -119,19 +119,19 @@ describe('业务逻辑 - 年龄计算', () => {
       expect(result).toBe('adult');
     });
 
-    it('老人 - 60岁', () => {
+    it('成人 (原本的老人边界) - 60岁', () => {
       const result = inferMemberType('1965-06-15');
-      expect(result).toBe('senior');
+      expect(result).toBe('adult');
     });
 
-    it('老人 - 70岁', () => {
+    it('成人 - 70岁', () => {
       const result = inferMemberType('1955-06-15');
-      expect(result).toBe('senior');
+      expect(result).toBe('adult');
     });
 
-    it('老人 - 100岁', () => {
+    it('成人 - 100岁', () => {
       const result = inferMemberType('1925-06-15');
-      expect(result).toBe('senior');
+      expect(result).toBe('adult');
     });
   });
 });

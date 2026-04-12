@@ -26,7 +26,7 @@
 | `name` | VARCHAR | 成员昵称 / 姓名 |
 | `gender` | VARCHAR | 枚举：`male`, `female`，部分参考带强依赖此字段 |
 | `date_of_birth` | DATE | 用于结合检查时间动态计算 `baseline_age_months` |
-| `member_type` | VARCHAR | 枚举：`child`, `adult`, `senior`，决定适用规则和页面展现 |
+| `member_type` | VARCHAR | 枚举：`child`, `adult`，`adult` 覆盖全部 18 岁以上人群，决定适用规则和页面展现 |
 | `is_deleted` | BOOLEAN | 默认 `false`，物理软删标志 |
 | `created_at` | TIMESTAMPTZ | 创建时间 |
 | `updated_at` | TIMESTAMPTZ | 更新时间 |

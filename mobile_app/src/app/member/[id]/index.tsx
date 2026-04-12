@@ -87,7 +87,7 @@ export default function MemberDashboardPage() {
   }
 
   const isChild = member.member_type === 'child';
-  const isAdultOrSenior = member.member_type === 'adult' || member.member_type === 'senior';
+  const isAdult = member.member_type === 'adult';
 
   return (
     <View style={styles.container}>
@@ -137,7 +137,7 @@ export default function MemberDashboardPage() {
           </>
         )}
 
-        {(isAdultOrSenior) && (
+        {(isAdult) && (
           <>
             <Text style={styles.sectionTitle}>健康指标</Text>
             <View style={styles.cardRow}>

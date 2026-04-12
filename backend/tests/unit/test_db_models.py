@@ -107,7 +107,7 @@ async def test_create_review_task_with_null_reviewer(db_session: AsyncSession):
         name="Review Test",
         gender="female",
         date_of_birth=date(1985, 1, 1),
-        member_type="senior"
+        member_type="adult"
     )
     db_session.add(member)
     await db_session.flush()

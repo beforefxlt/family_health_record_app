@@ -36,8 +36,8 @@ describe('前后端契约 - 成员档案接口', () => {
       // 契约要求：gender 必须是 'male' | 'female'
       expect(['male', 'female']).toContain(member.gender);
       
-      // 契约要求：member_type 必须是 'child' | 'adult' | 'senior'
-      expect(['child', 'adult', 'senior']).toContain(member.member_type);
+      // 契约要求：member_type 必须是 'child' | 'adult'
+      expect(['child', 'adult']).toContain(member.member_type);
       
       // 契约要求：date_of_birth 必须是 YYYY-MM-DD 格式
       expect(member.date_of_birth).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -95,7 +95,7 @@ describe('前后端契约 - 成员档案接口', () => {
       
       // 契约要求：member_type 必填
       expect(requestBody.member_type).toBeDefined();
-      expect(['child', 'adult', 'senior']).toContain(requestBody.member_type);
+      expect(['child', 'adult']).toContain(requestBody.member_type);
     });
 
     it('响应体符合契约定义', () => {

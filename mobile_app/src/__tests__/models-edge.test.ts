@@ -49,7 +49,7 @@ describe('API Models - 边界与异常用例', () => {
     it('无效 member_type 值', () => {
       const invalidTypes = ['infant', 'teenager', ''];
       invalidTypes.forEach(type => {
-        const isValid = type === 'child' || type === 'adult' || type === 'senior';
+        const isValid = type === 'child' || type === 'adult';
         expect(isValid).toBe(false);
       });
     });

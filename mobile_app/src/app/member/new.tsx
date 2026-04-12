@@ -11,7 +11,7 @@ export default function NewMemberPage() {
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [memberType, setMemberType] = useState<'child' | 'adult' | 'senior'>('child');
+  const [memberType, setMemberType] = useState<'child' | 'adult'>('child');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -46,8 +46,7 @@ export default function NewMemberPage() {
     const today = new Date();
     const age = today.getFullYear() - dob.getFullYear();
     if (age < 18) return 'child';
-    if (age < 60) return 'adult';
-    return 'senior';
+    return 'adult';
   };
 
   return (
@@ -106,7 +105,7 @@ export default function NewMemberPage() {
 
         <Text style={styles.label}>成员类型</Text>
         <View style={styles.typeRow}>
-          {(['child', 'adult', 'senior'] as const).map((type) => (
+          {(['child', 'adult'] as const).map((type) => (
             <TouchableOpacity
               key={type}
               style={[styles.typeButton, memberType === type && styles.typeButtonActive]}

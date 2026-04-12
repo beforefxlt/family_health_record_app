@@ -60,11 +60,9 @@ describe('API Models - MemberProfile', () => {
     };
 
     const adult: MemberProfile = { ...child, id: '2', member_type: 'adult' };
-    const senior: MemberProfile = { ...child, id: '3', member_type: 'senior' };
 
     expect(child.member_type).toBe('child');
     expect(adult.member_type).toBe('adult');
-    expect(senior.member_type).toBe('senior');
   });
 });
 

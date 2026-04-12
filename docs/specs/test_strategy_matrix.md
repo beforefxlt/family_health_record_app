@@ -16,7 +16,7 @@
 | TC-P1-002 | 空状态页点击「添加第一位成员」跳转创建页 | P1 | E2E/前端 | 验证点击按钮后正确跳转到成员档案创建页 |
 | TC-P1-003 | 创建成员档案（儿童）并保存 | P1 | API/E2E | POST /api/v1/members，member_type=child，验证返回 201 及完整成员对象 |
 | TC-P1-004 | 创建成员档案（成人）并保存 | P1 | API/E2E | POST /api/v1/members，member_type=adult，验证返回 201 及完整成员对象 |
-| TC-P1-005 | 创建成员档案（老人）并保存 | P1 | API/E2E | POST /api/v1/members，member_type=senior，验证返回 201 及完整成员对象 |
+| TC-P1-005 | 创建成员档案（老人）返回 422 | P1 | API | POST /api/v1/members，member_type=senior，验证返回 422 及错误信息 |
 | TC-P1-006 | 创建成员成功后返回首页展示成员卡片 | P1 | E2E/前端 | 验证首页展示成员头像/首字母、名称、类型标签、最近检查时间 |
 | TC-P1-007 | 上传 JPG 格式检查单图片 | P1 | API/集成 | POST /api/v1/documents/upload，验证返回 document_id 和 status=uploaded |
 | TC-P1-008 | 上传 PNG 格式检查单图片 | P1 | API/集成 | POST /api/v1/documents/upload，验证返回 document_id 和 status=uploaded |

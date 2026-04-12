@@ -488,21 +488,19 @@ describe('安卓客户端全链路集成测试', () => {
     it('多个成员 + 多个指标 + 趋势对比 + 空状态', async () => {
       const { memberService, trendService, examService } = await import('../api/services');
 
-      // ===== Phase 1: 获取成员列表（3个成员）=====
+      // ===== Phase 1: 获取成员列表（2个成员）=====
       const members = [
         createMember('mem-child', '小明', 'child'),
         createMember('mem-adult', '张三', 'adult'),
-        createMember('mem-senior', '李爷爷', 'senior'),
       ];
       mockFetch.mockResolvedValueOnce({
         ok: true, status: 200, json: async () => members,
       });
 
       const memberList = await memberService.list();
-      expect(memberList).toHaveLength(3);
+      expect(memberList).toHaveLength(2);
       expect(memberList.map(m => m.member_type)).toContain('child');
       expect(memberList.map(m => m.member_type)).toContain('adult');
-      expect(memberList.map(m => m.member_type)).toContain('senior');
 
       // ===== Phase 2: 儿童 - 视力看板（有数据）=====
       mockFetch.mockResolvedValueOnce({
@@ -541,20 +539,7 @@ describe('安卓客户端全链路集成测试', () => {
       expect(adultGrowth.height.series).toHaveLength(0);
       expect(adultGrowth.height.growth_rate).toBeNull();
 
-      // ===== Phase 6: 老人 - 视力看板（空数据）=====
-      mockFetch.mockResolvedValueOnce({
-        ok: true, status: 200, json: async () => ({
-          member_type: 'senior',
-          axial_length: { series: [], comparison: null, alert_status: null, reference_range: '22-26mm' },
-          vision_acuity: { series: [], comparison: null, alert_status: null, reference_range: '0.8-1.0' },
-        }),
-      });
-
-      const seniorVision = await trendService.getVisionDashboard('mem-senior');
-      expect(seniorVision.member_type).toBe('senior');
-      expect(seniorVision.axial_length.series).toHaveLength(0);
-
-      // ===== Phase 7: 老人 - 血糖趋势 =====
+      // ===== Phase 6: 成人 - 血糖趋势 =====
       mockFetch.mockResolvedValueOnce({
         ok: true, status: 200, json: async () => createTrendResponse('glucose', [
           { date: '2026-03-01', value: 5.6 },
@@ -562,12 +547,12 @@ describe('安卓客户端全链路集成测试', () => {
         ]),
       });
 
-      const glucoseTrend = await trendService.getTrends('mem-senior', 'glucose');
+      const glucoseTrend = await trendService.getTrends('mem-adult', 'glucose');
       expect(glucoseTrend.metric).toBe('glucose');
       expect((glucoseTrend.comparison as any)?.current).toBe(5.8);
       expect((glucoseTrend.comparison as any)?.delta).toBeCloseTo(0.2, 1);
 
-      // ===== Phase 8: 老人 - 糖化血红蛋白趋势 =====
+      // ===== Phase 7: 成人 - 糖化血红蛋白趋势 =====
       mockFetch.mockResolvedValueOnce({
         ok: true, status: 200, json: async () => createTrendResponse('hba1c', [
           { date: '2026-01-01', value: 6.5 },
@@ -575,11 +560,11 @@ describe('安卓客户端全链路集成测试', () => {
         ]),
       });
 
-      const hba1cTrend = await trendService.getTrends('mem-senior', 'hba1c');
+      const hba1cTrend = await trendService.getTrends('mem-adult', 'hba1c');
       expect((hba1cTrend.comparison as any)?.current).toBe(6.8);
       expect((hba1cTrend.comparison as any)?.delta).toBeCloseTo(0.3, 1);
 
-      expect(mockFetch).toHaveBeenCalledTimes(8);
+      expect(mockFetch).toHaveBeenCalledTimes(7);
     });
   });
 

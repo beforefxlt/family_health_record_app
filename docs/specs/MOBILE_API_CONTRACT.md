@@ -182,7 +182,7 @@ interface MemberProfile {
   name: string;
   gender: 'male' | 'female';
   date_of_birth: string; // YYYY-MM-DD
-  member_type: 'child' | 'adult' | 'senior';
+  member_type: 'child' | 'adult';
   last_check_date: string | null;
   pending_review_count: number;
 }

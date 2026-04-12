@@ -14,12 +14,11 @@ export function calculateAge(dateOfBirth: string | Date): number {
   return age;
 }
 
-export function inferMemberType(dateOfBirth: string | Date): 'child' | 'adult' | 'senior' {
+export function inferMemberType(dateOfBirth: string | Date): 'child' | 'adult' {
   const age = calculateAge(dateOfBirth);
   
   if (age < 18) return 'child';
-  if (age < 60) return 'adult';
-  return 'senior';
+  return 'adult';
 }
 
 export function getConfidenceStyle(score: number): {

@@ -40,8 +40,9 @@
 1. **指标时间展示 (移动端)**: 详情页卡片新增「记录于 YYYY-MM-DD」，完成 MetricCard 重构。
 2. **记录列表 API**: 新增 `GET /api/v1/records`，支持分页与级联过滤。
 3. **眼轴年龄参考值**: 实现了按年龄动态计算眼轴参考值，移除硬编码 (23.0mm)。
-4. **API 超时治理**: 前后端统一增加了 30s 超时处理与 `AbortController` 绑定。
+4. **API 超时治理**: 前后端统一增加了 30s 超时处理与 `AbortController`绑定。
 5. **代码审计**: 修复了白屏容错、时间范围筛选、图片预览等 6 个核心 Bug。
+6. **成员类型合并**: 彻底废弃 `senior` 类型，将 18 岁以上人群统一合并至 `adult`；同步更新了全栈 Schema、判定逻辑及 UI 规格。
 
 ### 2.2 测试状态
 | 类型 | 用例数 | 结果 | 备注 |
@@ -70,6 +71,7 @@
 - [ ] **PostgreSQL 迁移**: 生产环境正式数据库配置验证。
 - [x] **文档治理门禁**: 已建立 `AGENTS.md` + pre-commit + GitHub Actions 文档对齐检查。
 - [x] **提交规范门禁**: 已建立 commit message 中文校验（commit-msg hook + GitHub Actions）。
+- [ ] **Docker 镜像验证**: 运行 `scripts/build_docker.py` 验证全栈重构后的镜像构建可用性（合并重构后遗留）。
 
 ---
 

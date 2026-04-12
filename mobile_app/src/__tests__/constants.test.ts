@@ -1,4 +1,5 @@
 import { API_CONFIG, METRIC_RANGES, METRIC_LABELS, MEMBER_TYPE_LABELS, GENDER_LABELS } from '../constants/api';
+import { memberService } from '../api/services';
 
 describe('API Constants', () => {
   describe('API_CONFIG', () => {
@@ -78,8 +79,8 @@ describe('API Constants', () => {
       expect(MEMBER_TYPE_LABELS.adult).toBe('成人');
     });
 
-    it('should have senior label', () => {
-      expect(MEMBER_TYPE_LABELS.senior).toBe('老人');
+    it('should not have senior in labels', () => {
+      expect(MEMBER_TYPE_LABELS.senior).toBeUndefined();
     });
   });
 

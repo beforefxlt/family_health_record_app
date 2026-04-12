@@ -54,7 +54,7 @@
 | `name` | string | 成员姓名 |
 | `gender` | string | 性别（male/female） |
 | `date_of_birth` | date | 出生日期 |
-| `member_type` | string | 成员类型（child/adult/senior） |
+| `member_type` | string | 成员类型（child/adult） |
 | `last_check_date` | string\|null | 最近一次检查日期（ExamRecord.exam_date），无检查记录时为 null |
 | `pending_review_count` | int | 待审核检查单数量（ReviewTask.status='pending'），默认 0 |
 

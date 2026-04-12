@@ -11,7 +11,7 @@
 
 | 需求编号 | 需求描述 | 核验结果 | 代码证据 | 备注 |
 |:---:|---|:---:|---|---|
-| 1 | 家庭成员档案管理（支持多成员切换） | ✅ 已实现 | `backend/app/routers/members.py:62-143` — CRUD 全量实现（list/create/get/update/delete），含软删除(`is_deleted` 字段)。前端 `frontend/src/app/page.tsx:248-283` 展示成员卡片列表，支持点击切换。 | 成员类型(child/adult/senior)区分完整，前端有类型标签颜色映射。 |
+| 1 | 家庭成员档案管理（支持多成员切换） | ✅ 已实现 | `backend/app/routers/members.py:62-143` — CRUD 全量实现（list/create/get/update/delete），含软删除(`is_deleted` 字段)。前端 `frontend/src/app/page.tsx:248-283` 展示成员卡片列表，支持点击切换。 | 成员类型(child/adult)区分完整，前端有类型标签颜色映射。 |
 | 2 | 检查单上传与原件保存 | ✅ 已实现 | `backend/app/routers/documents.py:61-99` — POST `/documents/upload` 接收文件并写入 `uploads/` 目录。`backend/app/models/document.py:10-24` — DocumentRecord 模型含 `file_url` 字段。 | 支持 JPG/PNG/PDF 上传，文件持久化到本地磁盘。 |
 | 3 | 服务端私有环境完成脱敏后发送 OCR | ⚠️ 部分实现 | `backend/app/services/image_processor.py:5-27` — `desensitize_image()` 函数已实现（遮盖顶部15%+底部10%）。`backend/app/services/ocr_orchestrator.py:86-112` — 但 OCR 编排器**未调用脱敏函数**，直接将原图 base64 发送给 SiliconFlow API。 | **关键缺陷**: 脱敏函数存在但未被 OCR 流程调用，违反 PRD §7 中"不向公有云发送原图"约束。 |
 | 4 | 多模态 OCR 候选结构化抽取 | ✅ 已实现 | `backend/app/services/ocr_orchestrator.py:86-156` — 调用 SiliconFlow API (DeepSeek-OCR) 进行多模态识别，解析 JSON 输出。含 E2E 快速通道模拟。 | 支持眼科指标(眼轴/视力)提取，含 JSON 清理和容错逻辑。 |

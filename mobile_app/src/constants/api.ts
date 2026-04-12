@@ -41,7 +41,6 @@ export const METRIC_LABELS: Record<string, string> = {
 export const MEMBER_TYPE_LABELS: Record<string, string> = {
   child: '儿童',
   adult: '成人',
-  senior: '老人',
 };
 
 export const GENDER_LABELS: Record<string, string> = {

@@ -3,7 +3,7 @@ export interface MemberProfile {
   name: string;
   gender: 'male' | 'female';
   date_of_birth: string;
-  member_type: 'child' | 'adult' | 'senior';
+  member_type: 'child' | 'adult';
   last_check_date: string | null;
   pending_review_count: number;
 }
@@ -12,14 +12,14 @@ export interface CreateMemberDTO {
   name: string;
   gender: 'male' | 'female';
   date_of_birth: string;
-  member_type: 'child' | 'adult' | 'senior';
+  member_type: 'child' | 'adult';
 }
 
 export interface UpdateMemberDTO {
   name?: string;
   gender?: 'male' | 'female';
   date_of_birth?: string;
-  member_type?: 'child' | 'adult' | 'senior';
+  member_type?: 'child' | 'adult';
 }
 
 export interface DocumentRecord {
