@@ -7,7 +7,7 @@
 
 | 项目 | 选择 | 备注 |
 |------|------|------|
-| **框架** | React Native + Expo SDK 52 | 官方推荐 |
+| **框架** | React Native + Expo SDK 54 | 官方推荐 |
 | **语言** | TypeScript | 与 Web 端一致 |
 | **路由** | expo-router | 文件路由，类似 Next.js App Router |
 | **状态管理** | React Context + useReducer | 轻量，满足 MVP |
@@ -106,16 +106,16 @@
 ```json
 {
   "dependencies": {
-    "expo": "~52.0.0",
-    "expo-router": "~4.0.0",
-    "react": "18.3.1",
-    "react-native": "0.76.6",
-    "expo-image-picker": "~16.0.0",
+    "expo": "~54.0.33",
+    "expo-router": "~6.0.23",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "expo-image-picker": "~17.0.10",
     "react-native-chart-kit": "^6.12.0",
-    "react-native-svg": "15.8.0",
-    "react-hook-form": "^7.54.0",
-    "@react-native-community/datetimepicker": "^8.0.0",
-    "@expo/vector-icons": "^14.0.0"
+    "react-native-svg": "15.12.1",
+    "react-hook-form": "^7.72.1",
+    "@react-native-community/datetimepicker": "8.4.4",
+    "@expo/vector-icons": "~15.1.1"
   }
 }
 ```
@@ -125,8 +125,8 @@
 ```json
 {
   "devDependencies": {
-    "@types/react": "~18.3.0",
-    "typescript": "^5.3.0"
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
   }
 }
 ```
@@ -188,3 +188,4 @@ cd android && ./gradlew assembleRelease
 | 日期 | 版本 | 变更 |
 |------|------|------|
 | 2026-04-04 | v1.0.0 | 初始决策：Expo + TypeScript |
+| 2026-04-12 | v1.0.1 | 升级并对齐到 Expo SDK 54，关闭 New Architecture 以稳定 Android Release 启动 |

@@ -1,7 +1,7 @@
 # 家庭检查单管理应用 - 移动端
 
 > **版本**: v1.0.0  
-> **技术栈**: React Native + Expo SDK 52 + TypeScript
+> **技术栈**: React Native + Expo SDK 54 + TypeScript
 
 ## 1. 项目概述
 
@@ -21,7 +21,7 @@
 
 | 层级 | 技术选型 |
 |------|----------|
-| 框架 | Expo SDK 52 |
+| 框架 | Expo SDK 54 |
 | 语言 | TypeScript |
 | 路由 | expo-router (文件路由) |
 | 状态管理 | React Context + useReducer |

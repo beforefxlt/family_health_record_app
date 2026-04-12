@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-已完成移动端 App 开发、QA Pipeline 用例筛选功能、E2E 测试标签标注。
+已完成移动端 App 开发、QA Pipeline 用例筛选功能、E2E 测试标签标注；移动端 Release APK 闪退问题已完成配置修复并在 Android 模拟器回归通过。
 
 已落地的内容：
 - 项目目录骨架
@@ -17,7 +17,7 @@
 - **Python 基础规则引擎与图片隐私脱敏机制**
 - **Docker Compose 私有化部署编排（PostgreSQL + MinIO + Backend + Frontend）**
 - **契约对齐：API_CONTRACT.md 补充数值区间约束、revised_items 格式规范**
-- **移动端 App：React Native + Expo，10 页面 + 351 UT**
+- **移动端 App：React Native + Expo SDK 54，10 页面 + 371 UT**
 - **QA Pipeline：支持 --tags/--spec/--exclude 用例筛选**
 - **E2E 测试：7 个测试文件，标注 critical/smoke/regression 标签**
 - **ESLint + Prettier：移动端代码规范检查**
@@ -58,7 +58,7 @@ family_health_record_app/
 │   └── e2e/                    # Playwright E2E 测试 (7 个文件)
 ├── mobile_app/                 # React Native + Expo 移动端应用
 │   ├── src/app/                # 10 个页面
-│   └── src/__tests__/          # 351 个单元测试
+│   └── src/__tests__/          # 371 个单元测试
 ├── infra/                      # Docker Compose 与部署编排
 ├── scripts/                    # QA Pipeline 与构建脚本
 └── docs/
