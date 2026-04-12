@@ -15,6 +15,7 @@ import {
   getLatestValue,
   shouldShowEmptyState,
   splitSeriesBySide,
+  calculateYAxisDomain,
   TrendPoint,
 } from '../utils';
 
@@ -746,6 +747,57 @@ describe('Bug 回归 - #7 图表数据 side 过滤标签对齐', () => {
       expect(leftData).toHaveLength(0);
       expect(rightData).toHaveLength(2);
       expect(labels).toEqual(['2024-01-01', '2024-02-01']);
+    });
+  });
+
+  describe('calculateYAxisDomain', () => {
+    it('多数据点 - 上下浮动20%', () => {
+      const series: TrendPoint[] = [
+        { date: '2024-01-01', value: 23.5 },
+        { date: '2024-02-01', value: 23.8 },
+        { date: '2024-03-01', value: 23.6 },
+      ];
+      const domain = calculateYAxisDomain(series);
+      expect(domain).not.toBeNull();
+      const range = 23.8 - 23.5;
+      const padding = range * 0.2;
+      expect(domain!.min).toBeCloseTo(23.5 - padding);
+      expect(domain!.max).toBeCloseTo(23.8 + padding);
+    });
+
+    it('单数据点 - 基于当前值上下浮动20%', () => {
+      const series: TrendPoint[] = [
+        { date: '2024-01-01', value: 23.5 },
+      ];
+      const domain = calculateYAxisDomain(series);
+      expect(domain).not.toBeNull();
+      expect(domain!.min).toBeCloseTo(23.5 * 0.8);
+      expect(domain!.max).toBeCloseTo(23.5 * 1.2);
+    });
+
+    it('空数据返回null', () => {
+      expect(calculateYAxisDomain([])).toBeNull();
+      expect(calculateYAxisDomain(null as any)).toBeNull();
+    });
+
+    it('左右眼合并 - 取扩展后的并集', () => {
+      const series: TrendPoint[] = [
+        { date: '2024-01-01', value: 23.5, side: 'left' },
+        { date: '2024-02-01', value: 23.7, side: 'left' },
+        { date: '2024-01-01', value: 24.0, side: 'right' },
+        { date: '2024-02-01', value: 24.2, side: 'right' },
+      ];
+      const { leftData, rightData } = splitSeriesBySide(series);
+      const leftDomain = calculateYAxisDomain(leftData);
+      const rightDomain = calculateYAxisDomain(rightData);
+      
+      const combined = {
+        min: Math.min(leftDomain!.min, rightDomain!.min),
+        max: Math.max(leftDomain!.max, rightDomain!.max),
+      };
+      
+      expect(combined.min).toBeLessThan(23.5);
+      expect(combined.max).toBeGreaterThan(24.2);
     });
   });
 });

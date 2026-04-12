@@ -219,3 +219,31 @@ export function splitSeriesBySide(series: TrendPoint[]): {
   const allDates = [...new Set(series.map(s => s.date))].sort();
   return { leftData, rightData, labels: allDates };
 }
+
+export interface YAxisDomain {
+  min: number;
+  max: number;
+}
+
+export function calculateYAxisDomain(series: TrendPoint[]): YAxisDomain | null {
+  if (!series?.length) return null;
+
+  const values = series
+    .map(s => Number(s.value))
+    .filter(v => !isNaN(v));
+
+  if (values.length === 0) return null;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  if (values.length === 1) {
+    const current = min;
+    const padding = current * 0.2;
+    return { min: current - padding, max: current + padding };
+  }
+
+  const range = max - min;
+  const padding = range * 0.2;
+  return { min: min - padding, max: max + padding };
+}

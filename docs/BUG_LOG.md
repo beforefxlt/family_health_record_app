@@ -799,3 +799,27 @@
 
 - TC-CRUD-001~004: 成员详情页数据加载问题（React SSR hydration）
 - TC-INT-E2E-001: OCR 外部服务超时
+
+---
+
+## 📅 v2.8.0 修复记录 (2026-04-12)
+
+### [BUG-060] 趋势页崩溃 - chartConfig 未定义
+- **现象**: 打开趋势页时 App 崩溃，报错 `ReferenceError: Property 'chartConfig' doesn't exist`
+- **根由**: 修改趋势图 Y 轴范围时遗留了未定义的 `chartConfig` 变量引用
+- **修复**: 清理无效变量，保持原有 chartConfig 配置
+- **涉及文件**: `mobile_app/src/app/member/[id]/trends.tsx`
+- **验证状态**: ✅ APK 构建成功，安装验证通过
+- **UT 覆盖**: ✅ 375 passed (mobile_app)
+
+### [BUG-061] 趋势图 Y 轴无扩展
+- **现象**: 用户反馈趋势图 Y 轴从第一个数据点开始，视觉上趋势变化不明显
+- **需求**: Y 轴范围应为 `最小值 - (max-min)*20%` 到 `最大值 + (max-min)*20%`，单数据点时当前值 ±20%
+- **修复**: 使用 react-native-chart-kit 透明数据集 hack 方案实现
+- **涉及文件**: 
+  - `mobile_app/src/utils/index.ts` - 新增 `calculateYAxisDomain()` 函数
+  - `mobile_app/src/app/member/[id]/trends.tsx` - 应用 padding 数据集
+- **验证状态**: ✅ 模拟器验证通过
+- **UT 覆盖**: ✅ 375 passed (mobile_app)
+  - `mobile_app/src/app/member/[id]/trends.tsx` - 应用 padding 数据集
+- **测试**: 375 passed (mobile_app)

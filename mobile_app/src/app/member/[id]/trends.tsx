@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { LineChart } from 'react-native-chart-kit';
@@ -47,19 +47,67 @@ export default function TrendsPage() {
     const leftValues = leftData.map(s => Number(s.value));
     const rightValues = rightData.map(s => Number(s.value));
     
+    const getPaddingRange = (values: number[]): [number, number] | null => {
+      if (values.length === 0) return null;
+      if (values.length === 1) {
+        const current = values[0];
+        const padding = current * 0.2;
+        return [current - padding, current + padding];
+      }
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const padding = (max - min) * 0.2;
+      return [min - padding, max + padding];
+    };
+    
+    const leftRange = getPaddingRange(leftValues);
+    const rightRange = getPaddingRange(rightValues);
+    
+    let minRange: number = 0, maxRange: number = 0;
+    if (leftRange && rightRange) {
+      minRange = Math.min(leftRange[0], rightRange[0]);
+      maxRange = Math.max(leftRange[1], rightRange[1]);
+    } else if (leftRange) {
+      minRange = leftRange[0];
+      maxRange = leftRange[1];
+    } else if (rightRange) {
+      minRange = rightRange[0];
+      maxRange = rightRange[1];
+    }
+    
+    const paddingDataset = [];
+    if (minRange !== 0 || maxRange !== 0) {
+      paddingDataset.push({
+        data: new Array(labels.length).fill(minRange),
+        withDots: false,
+        color: () => 'transparent',
+        strokeWidth: 0,
+      });
+      paddingDataset.push({
+        data: new Array(labels.length).fill(maxRange),
+        withDots: false,
+        color: () => 'transparent',
+        strokeWidth: 0,
+      });
+    }
+    
     if (rightValues.length > 0) {
       return {
         labels: displayLabels,
         datasets: [
           { data: leftValues, strokeWidth: 2 },
           { data: rightValues, strokeWidth: 2 },
+          ...paddingDataset,
         ],
       };
     }
     
     return {
       labels: displayLabels,
-      datasets: [{ data: leftValues }],
+      datasets: [
+        { data: leftValues, strokeWidth: 2 },
+        ...paddingDataset,
+      ],
     };
   };
 

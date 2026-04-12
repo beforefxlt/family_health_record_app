@@ -97,6 +97,18 @@ cd infra && docker compose up -d
 
 详细部署说明请参考 [`DEPLOY.md`](./DEPLOY.md)。
 
+## Android 调试
+
+ADB 路径：`C:\Users\Administrator\AppData\Local\Android\Sdk\platform-tools\adb`
+
+```bash
+# 查看日志
+adb logcat -d
+
+# 安装 APK
+adb install app-debug.apk
+```
+
 ## 快速启动（Docker Compose）
 
 ```bash
