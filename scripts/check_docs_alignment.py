@@ -44,7 +44,11 @@ def run_git(*args: str) -> list[str]:
     )
     if result.returncode != 0:
         return []
-    return [line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip()]
+    return [
+        line.strip().replace("\\", "/")
+        for line in result.stdout.splitlines()
+        if line.strip()
+    ]
 
 
 def get_changed_files() -> set[str]:
@@ -55,7 +59,9 @@ def get_changed_files() -> set[str]:
     return files
 
 
-def path_matches(file_path: str, prefixes: Iterable[str], suffixes: Iterable[str] = ()) -> bool:
+def path_matches(
+    file_path: str, prefixes: Iterable[str], suffixes: Iterable[str] = ()
+) -> bool:
     normalized = file_path.replace("\\", "/")
     return any(normalized.startswith(prefix) for prefix in prefixes) or any(
         normalized.endswith(suffix) for suffix in suffixes
@@ -75,6 +81,16 @@ def is_doc_file(file_path: str) -> bool:
 
 
 def is_code_file(file_path: str) -> bool:
+    # 排除配置文件（非业务代码变更）
+    config_files = (
+        ".pre-commit-config.yaml",
+        "pytest.ini",
+        "pyproject.toml",
+        "package.json",
+        "app.json",
+    )
+    if file_path in config_files or file_path.endswith((".yml", ".yaml")):
+        return False
     code_suffixes = (
         ".py",
         ".ts",
@@ -100,40 +116,90 @@ def detect_required_docs(changed_files: set[str]) -> tuple[set[str], list[str]]:
     code_files = {f for f in changed_files if is_code_file(f) and not is_doc_file(f)}
     if code_files:
         required.update({"STATUS", "DEVELOPMENT_LOG"})
-        reasons.append("存在代码/配置改动，必须同步更新 STATUS.md 和 DEVELOPMENT_LOG.md")
+        reasons.append(
+            "存在代码/配置改动，必须同步更新 STATUS.md 和 DEVELOPMENT_LOG.md"
+        )
 
-    if any(path_matches(f, ("backend/app/routers/", "backend/app/services/", "backend/app/schemas/")) for f in changed_files):
+    if any(
+        path_matches(
+            f, ("backend/app/routers/", "backend/app/services/", "backend/app/schemas/")
+        )
+        for f in changed_files
+    ):
         required.add("API_CONTRACT")
         reasons.append("后端接口/服务改动，必须同步更新 API_CONTRACT.md")
 
-    if any(path_matches(f, ("backend/app/models/", "backend/app/db/", "backend/alembic/"), (".sql",)) for f in changed_files):
+    if any(
+        path_matches(
+            f, ("backend/app/models/", "backend/app/db/", "backend/alembic/"), (".sql",)
+        )
+        for f in changed_files
+    ):
         required.add("DATABASE_SCHEMA")
         reasons.append("数据模型/Schema 改动，必须同步更新 DATABASE_SCHEMA.md")
 
-    if any(path_matches(f, ("frontend/src/app/", "frontend/src/components/", "frontend/src/hooks/")) for f in changed_files):
+    if any(
+        path_matches(
+            f, ("frontend/src/app/", "frontend/src/components/", "frontend/src/hooks/")
+        )
+        for f in changed_files
+    ):
         required.add("UI_SPEC")
         reasons.append("Web 页面/组件改动，必须同步更新 UI_SPEC.md")
 
-    if any(path_matches(f, ("mobile_app/src/app/", "mobile_app/src/components/", "mobile_app/src/hooks/")) for f in changed_files):
+    if any(
+        path_matches(
+            f,
+            (
+                "mobile_app/src/app/",
+                "mobile_app/src/components/",
+                "mobile_app/src/hooks/",
+            ),
+        )
+        for f in changed_files
+    ):
         required.add("MOBILE_UI_SPEC")
         reasons.append("移动端页面/组件改动，必须同步更新 MOBILE_UI_SPEC.md")
 
-    if any(path_matches(f, ("mobile_app/src/api/", "mobile_app/src/config/")) for f in changed_files):
+    if any(
+        path_matches(f, ("mobile_app/src/api/", "mobile_app/src/config/"))
+        for f in changed_files
+    ):
         required.add("MOBILE_API_CONTRACT")
         reasons.append("移动端 API/配置改动，必须同步更新 MOBILE_API_CONTRACT.md")
 
-    if any(path_matches(f, ("tests/", "frontend/e2e/", "mobile_app/src/__tests__/", "mcp-tests/")) for f in changed_files):
+    if any(
+        path_matches(
+            f, ("tests/", "frontend/e2e/", "mobile_app/src/__tests__/", "mcp-tests/")
+        )
+        for f in changed_files
+    ):
         required.add("TEST_STRATEGY")
         reasons.append("测试或回归用例改动，必须同步更新 TEST_STRATEGY.md")
 
-    if any(path_matches(f, ("infra/",), ("Dockerfile", "docker-compose.yml", "app.json", "settings.gradle", "build.gradle", "gradle.properties")) for f in changed_files):
+    if any(
+        path_matches(
+            f,
+            ("infra/",),
+            (
+                "Dockerfile",
+                "docker-compose.yml",
+                "app.json",
+                "settings.gradle",
+                "build.gradle",
+                "gradle.properties",
+            ),
+        )
+        for f in changed_files
+    ):
         required.add("ARCHITECTURE")
         reasons.append("构建/部署/工程结构改动，必须同步更新 ARCHITECTURE.md")
 
     regression_content_hit = any(
         "BUG-REGRESSION" in read_file(f)
         for f in changed_files
-        if path_matches(f, ("tests/", "frontend/e2e/", "mobile_app/src/__tests__/")) and f.endswith((".ts", ".tsx", ".py"))
+        if path_matches(f, ("tests/", "frontend/e2e/", "mobile_app/src/__tests__/"))
+        and f.endswith((".ts", ".tsx", ".py"))
     )
     if regression_content_hit:
         required.add("BUG_LOG")
@@ -154,7 +220,11 @@ def main() -> int:
 
     required_docs, reasons = detect_required_docs(changed_files)
     changed_set = {Path(f) for f in changed_files}
-    missing = [name for name in sorted(required_docs) if CANONICAL_DOCS[name] not in changed_set]
+    missing = [
+        name
+        for name in sorted(required_docs)
+        if CANONICAL_DOCS[name] not in changed_set
+    ]
 
     print("Changed files:")
     for file_path in sorted(changed_files):
